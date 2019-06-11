@@ -1,0 +1,56 @@
+<table id="dataTable" lay-filter="modelList"></table>
+
+{include file="block/layui" /}
+
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
+</script>
+
+<script type="text/html" title="操作按钮模板" id="buttonTpl">
+    <a href="{:url('editModel')}?id={{ d.mid }}" lay-event="edit"  class="layui-btn layui-btn-xs layui-btn-normal">修改</a>
+    <a  href="{:url('delModel')}?id={{ d.mid }}" class="layui-btn layui-btn-xs layui-btn-danger j-tr-del">删除</a>
+</script>
+<script type="text/html" title="字段操作模板" id="fieldTpl">
+    <a href="{:url('fieldList')}?id={{ d.mid }}" class="layui-btn layui-btn-xs layui-btn-normal">查看字段</a>
+    <a href="{:url('initfield')}?id={{ d.mid }}" class="layui-btn layui-btn-xs layui-btn-normal ">初始化</a>
+</script>
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-group fl">
+        <a href="{:url('editModel')}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加</a>
+        <a data-href="{:url('statusRole?val=1')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
+        <a data-href="{:url('statusRole?val=0')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
+        <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
+    </div>
+</script>
+
+<script type="text/javascript">
+    layui.use(['form','layer','table'], function() {
+        var table = layui.table;
+
+        table.render({
+            elem: '#dataTable'
+            ,url: '{:url("mycms/mymodel/modellist")}' //数据接口
+            ,skin: 'row'
+            ,even: true
+            ,text: {
+                none : '暂无相关数据'
+            }
+            ,toolbar: '#toolbar'
+            ,defaultToolbar: ['filter']
+            ,cols: [[ //表头
+                {type:'checkbox'}
+                ,{field: 'mid', title: 'mid'}
+                ,{field: 'title', title: '模型标题'}
+                ,{field: 'name', title: '模型名称'}
+                ,{field: 'remark', title: '备注说明'}
+                ,{field: 'attr', title: '系统模型'}
+                ,{title: '字段管理', templet: '#fieldTpl'}
+                ,{field: 'status', title: '状态', templet: '#statusTpl'}
+                ,{title: '操作', templet: '#buttonTpl'}
+            ]]
+        });
+
+    });
+
+
+</script>

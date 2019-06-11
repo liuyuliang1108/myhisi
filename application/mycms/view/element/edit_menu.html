@@ -1,0 +1,143 @@
+
+<form id="form" method="post" class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属层级</label>
+        <div class="layui-input-block" id="parent-class">
+            {form:select name="pid" list="$menu" value="$data['pid']" option="['lay-verif'=>'required']"}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">UI项目</label>
+        <div class="layui-input-block">
+            <input type="text" name="subject" placeholder="请输入" autocomplete="off" class="layui-input"
+                   value="{:isset($data.subject)?$data.subject:'layui'}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">组件标题</label>
+        <div class="layui-input-block">
+            <input type="text" name="title" placeholder="请输入" autocomplete="off" class="layui-input"
+                   value="{:isset($data.title)?$data.title:''}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">组件名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" placeholder="请输入" autocomplete="off" class="layui-input"
+                   value="{:isset($data.name)?$data.name:''}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否菜单</label>
+        <div class="layui-input-block">
+            {form:radio name="menu" list="['1'=>'是','0'=>'否']" value="$data['menu']"}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否tpl组件</label>
+        <div class="layui-input-block">
+            {form:radio name="tpl" list="['1'=>'是','0'=>'否']" value="$data['tpl']"}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否js组件</label>
+        <div class="layui-input-block">
+            {form:radio name="js" list="['1'=>'是','0'=>'否']" value="$data['js']"}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否php组件</label>
+        <div class="layui-input-block">
+            {form:radio name="php" list="['1'=>'是','0'=>'否']" value="$data['php']"}
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">dir</label>
+        <div class="layui-input-block">
+            <input type="text" name="dir" placeholder="请输入" autocomplete="off" class="layui-input"
+                   value="{:isset($data.dir)?$data.dir:'目录dir自动生成'}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-block">
+            <input type="text" name="sort" placeholder="请输入" autocomplete="off" class="layui-input"
+                   value="{:isset($data.sort)?$data.sort:'1'}">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否启用</label>
+        <div class="layui-input-block">
+            {form:radio name="status" list="['1'=>'启用','0'=>'禁用']" value="$data['status']"}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <input type="hidden" name="eid" value="{:isset($data['eid'])?$data['eid']:''}">
+            <button class="layui-btn" lay-submit lay-filter="*">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+{include file="block/layui" /}
+<script>
+    layui.use(['form', 'jquery', 'layer'], function () {
+        var form = layui.form, $ = layui.jquery, layer = layui.layer;
+
+        //ajax异步获取菜单数据
+        $("input.layui-unselect").blur(function(){
+            var id = $("dd.layui-this").attr('lay-value');
+
+            $.ajax({
+                type: 'get',
+                url: "{:url('admin/element/getMenu')}",
+                data: {id: id},
+                dataType: 'json',
+                success: function (data) {
+                    data= $.parseJSON(data);
+                    $("input[name='subject']").val(data.subject);
+                }
+            });
+
+        });
+
+        //表单提交
+        form.on("submit(*)", function (data) {
+
+            var obj = $(this);
+            obj.attr("disabled", "disabled").addClass("layui-disabled");
+            $.post("{:url('element/editMenu')}", data.field, function (data) {
+                var icon = 5;
+                if (data.code) {
+                    icon = 6;
+                }
+                layer.msg(data.msg, {icon: icon, time: 1500}, function () {   //提示的插件，可以使用alert代替
+                    if (data.code) {
+                        setTimeout(function () {
+                            //刷新父页面
+                            parent.location.reload();
+                        }, 500);
+                    } else {
+                        obj.removeAttr("disabled").removeClass("layui-disabled");
+                    }
+                });
+            }, 'json');
+            return false;
+        });
+    });
+
+
+</script>
+
+

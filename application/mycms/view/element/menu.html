@@ -1,0 +1,193 @@
+
+<style>
+    html, body {
+        height: 100%;
+    }
+</style>
+<form class="layui-form">
+    <blockquote class="layui-elem-quote quoteBox">
+        <form class="layui-form">
+            <div class="layui-inline">
+                <a class="layui-btn layui-btn-danger layui-btn-normal" onclick="add();">添加分类|组件</a>
+                <a class="layui-btn  layui-btn-normal" onclick="openAll();">展开或折叠全部</a>
+                <a class="layui-btn  layui-btn-normal" onclick="updateAll();">信息全部更新</a>
+            </div>
+        </form>
+    </blockquote>
+</form>
+
+<script type="text/html" id="order">
+    <input name="{{d.id}}" data-id="{{d.id}}" class="list_order layui-input" value=" {{d.sort}}" size="10"/>
+</script>
+<script type="text/html" id="subject">
+    <span class="icon {{d.subject}}"></span>
+</script>
+<script type="text/html" id="name">
+    <span class="icon {{d.name}}"></span>
+</script>
+<script type="text/html" id="title">
+    <span class="icon {{d.title}}"></span>
+</script>
+<script type="text/html" id="menu">
+    {{ d.menu== 1 ? '是' : '否' }}
+</script>
+
+<script type="text/html" id="status">
+    <input type="checkbox" name="menustatus" value="{{d.id}}" lay-skin="switch" lay-text="显示|隐藏" lay-filter="menustatus"
+           {{ d.status== 1 ? 'checked' : '' }}
+</script>
+<script type="text/html" id="action">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs" lay-event="build">创建组件文件</a>
+</script>
+<table class="layui-table" id="treeTable" lay-filter="treeTable"></table>
+{include file="block/layui" /}
+<script>
+    var ptable = null, treeGrid = null, tableId = 'treeTable', layer = null, $ = null, form = null
+    layui.config({
+        base: '/static/extend/'
+    }).extend({
+        treeGrid: 'treeGrid'
+    }).use(['jquery', 'treeGrid', 'layer', 'form'], function () {
+        $ = layui.jquery;
+        treeGrid = layui.treeGrid;
+        layer = layui.layer;
+        form = layui.form;
+        ptable = treeGrid.render({
+            id: tableId,
+            elem: '#' + tableId,
+            idField: 'eid',
+            url: "{:url('mycms/element/menu')}",
+            cellMinWidth: 100,
+            treeId: 'eid',//树形id字段名称
+            treeUpId: 'pid',//树形父id字段名称
+            treeShowName: 'name',//以树形式显示的字段
+            height: 'full-140',
+            isFilter: false,
+            iconOpen: false,//是否显示图标【默认显示】
+            isOpenDefault: false,//节点默认是展开还是折叠【默认展开】
+            onDblClickRow: false,//去除双击事件
+            cols: [[
+                {width: 80,field: 'eid', title: '编号'},
+                {width: 100,field: 'subject', title: 'UI项目'},
+                {width: 140,field: 'title', title: '组件标题'},
+                {field: 'name', title: '组件名称'},
+                {width: 100,field: 'menu', align: 'center', title: '是否菜单', toolbar: '#menu'},
+                {width: 80,field: 'status',align: 'center',title: '状态',toolbar: '#status'},
+                {width: 80,field: 'sort', align: 'center', title: '排序'},
+                {width: 240, align: 'center', title: '操作', templet: '#action'}
+            ]],
+            page: false
+        });
+        treeGrid.on('tool(' + tableId + ')', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('确定删除操作？', {icon: 3, title: '提示信息'}, function (index) {
+                    $.post("{:url('mycms/element/deleteMenu')}", {id: data.id}, function (data) {
+                        var icon = 5;
+                        if (data.code) {
+                            icon = 6;
+                        }
+                        layer.msg(data.msg, {icon: icon}, function () {
+                            if (data.code) {
+                                obj.del();//删除对应的行
+                            }
+                        });
+                    });
+                });
+            }
+            if (obj.event === 'edit') {
+                edit(data.eid)
+            }
+            if (obj.event === 'build') {
+                $.post("{:url('mycms/element/elementBuild')}", {eid: data.eid}, function (data) {
+                    var icon = 5;
+                    if (data.code) {
+                        icon = 6;
+                    }
+                    layer.msg(data.msg, {icon: icon});
+                });
+            }
+        });
+    });
+
+    /**
+     * 添加菜单
+     */
+    function add() {
+        var index = layui.layer.open({
+            type: 2,
+            title: '添加菜单',
+            content: "{:url('mycms/element/editMenu')}",
+            success: function (layero, index) {
+                var body = layui.layer.getChildFrame('body', index);
+                setTimeout(function () {
+                    layui.layer.tips('点击此处返回列表', '.layui-layer-setwin .layui-layer-close', {
+                        tips: 3
+                    });
+                }, 500)
+            }
+        });
+        layui.layer.full(index);
+        //改变窗口大小时，重置弹窗的宽高，防止超出可视区域（如F12调出debug的操作）
+        $(window).on("resize", function () {
+            layui.layer.full(index);
+        })
+    }
+
+    /**
+     * 编辑菜单
+     * @param id
+     */
+    function edit(eid) {
+        var index = layui.layer.open({
+            type: 2,
+            title: '编辑菜单',
+            content: "{:url('mycms/element/editMenu')}" + '?eid=' + eid,
+            success: function (layero, index) {
+                var body = layui.layer.getChildFrame('body', index);
+                setTimeout(function () {
+                    layui.layer.tips('点击此处返回列表', '.layui-layer-setwin .layui-layer-close', {
+                        tips: 3
+                    });
+                }, 500)
+            }
+        });
+        layui.layer.full(index);
+        //改变窗口大小时，重置弹窗的宽高，防止超出可视区域（如F12调出debug的操作）
+        $(window).on("resize", function () {
+            layui.layer.full(index);
+        })
+    }
+
+
+    function openAll() {
+        var treedata = treeGrid.getDataTreeList(tableId);
+        treeGrid.treeOpenAll(tableId, !treedata[0][treeGrid.config.cols.isOpen]);
+    }
+
+    //Ajax请求控制器中的方法完成所有数据的更新
+    function updateAll() {
+
+        jQuery.ajax({
+            url: '{:url("mycms/element/updateAll")}',
+            type: 'post',
+            dataType:'json',
+            success: function (data) {
+
+                var data = JSON.parse(data);
+
+                if (data.flag == 1) {
+                    //如果php处理成功，调用此方法
+                    layer.msg('全部更新成功!', {icon: 1, time: 1000});
+
+                } else {
+                    layer.msg('更新失败!', {icon: 1, time: 1000});
+                }
+            },
+        });
+
+    }
+</script>
+

@@ -1,0 +1,11 @@
+<div style="background-color:#fff;margin:10px 0;padding:10px;">
+<br>
+<h3>这是插件钩子模板输出示例，模板文件：/plugins/example/view/widget/system_admin_tips.html</h3>
+<br>
+<ul>
+	{volist name="exampleNews" id="vo"}
+		<li><a target="_blank" href="{:plugins_url('example/index/index', ['id' => $vo['id']], 'home')}">{$vo['title']}</a></li>
+	{/volist}
+</ul>
+
+</div>

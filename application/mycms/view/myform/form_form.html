@@ -1,0 +1,60 @@
+<form class="layui-form" action="{:url("mycms/myform/editForm")}" method="post">
+<div class="layui-tab-item layui-show">
+    <div class="layui-form-item">
+        <label class="layui-form-label">表单标题</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-title" value="{:isset($data.title)?$data.title:''}" name="title" lay-verify="required" autocomplete="off" placeholder="请输入表单标题">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">表单名称</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-name" name="name" value="{:isset($data.name)?$data.name:''}" lay-verify="required" autocomplete="off" placeholder="请输入表单名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">表单备注</label>
+        <div class="layui-input-inline">
+            <textarea  class="layui-textarea field-remark" name="remark" id="form-remark"  lay-verify="" autocomplete="off" placeholder="[选填]表单备注"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型外键</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-mid" name="mid" value="{:isset($data.mid)?$data.mid:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型外键">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型标签</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-tags" name="tags" value="{:isset($data.tags)?$data.tags:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型标签">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">表单状态</label>
+        <div class="layui-input-inline">
+            <input type="radio" class="field-status" name="status" value="1" title="启用" checked>
+            <input type="radio" class="field-status" name="status" value="0" title="禁用">
+        </div>
+    </div>
+</div>
+
+<div class="layui-form-item">
+    <div class="layui-input-block">
+        <input type="hidden" class="field-id" name="fid" value="{:isset($data.fid)?$data.fid:''}">
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="formSubmit">提交</button>
+        <a href="{:url('myform/formList')}" class="layui-btn layui-btn-primary ml10"><i class="aicon ai-fanhui"></i>返回</a>
+    </div>
+</div>
+</form>
+{include file="block/layui" /}
+<script>
+var formData = {:json_encode($formData)};
+layui.use(['form'], function() {
+    var $ = layui.jquery, form = layui.form;
+
+    $("#form-remark").val("{:isset($data.remark)?$data.remark:''}");
+});
+</script>

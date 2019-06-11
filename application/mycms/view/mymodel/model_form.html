@@ -1,0 +1,46 @@
+<form class="layui-form" action="{:url("mycms/mymodel/editModel")}" method="post">
+<div class="layui-tab-item layui-show">
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型标题</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-title" value="{:isset($data.title)?$data.title:''}" name="title" lay-verify="required" autocomplete="off" placeholder="请输入模型标题">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型名称</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-name" name="name" value="{:isset($data.name)?$data.name:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型名称">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型备注</label>
+        <div class="layui-input-inline">
+            <textarea  class="layui-textarea field-remark" name="remark" id="model-remark"  lay-verify="" autocomplete="off" placeholder="[选填]模型备注"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型状态</label>
+        <div class="layui-input-inline">
+            <input type="radio" class="field-status" name="status" value="1" title="启用" checked>
+            <input type="radio" class="field-status" name="status" value="0" title="禁用">
+        </div>
+    </div>
+</div>
+
+<div class="layui-form-item">
+    <div class="layui-input-block">
+        <input type="hidden" class="field-id" name="id" value="{:isset($data.id)?$data.id:''}">
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="formSubmit">提交</button>
+        <a href="{:url('mymodel')}" class="layui-btn layui-btn-primary ml10"><i class="aicon ai-fanhui"></i>返回</a>
+    </div>
+</div>
+</form>
+{include file="block/layui" /}
+<script>
+var formData = {:json_encode($formData)};
+layui.use(['form'], function() {
+    var $ = layui.jquery, form = layui.form;
+
+    $("#model-remark").val("{:isset($data.remark)?$data.remark:''}");
+});
+</script>

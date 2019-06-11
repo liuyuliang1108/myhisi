@@ -1,0 +1,147 @@
+<style>
+    /* 防止下拉框的下拉列表被隐藏---必须设置--- */
+    .layui-table-cell {            overflow: visible !important;        }
+    /* 使得下拉框与单元格刚好合适 */
+    td .layui-form-select{
+        margin-top: -10px;
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+</style>
+
+
+<table id="dataTable" lay-filter="fieldList" class="layui-table"></table>
+
+{include file="block/layui" /}
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-group fl">
+        <a data-href="{:url('statusRole?val=1')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
+        <a data-href="{:url('statusRole?val=0')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
+        <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
+        <button class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" lay-event="tags">&nbsp;生成tags</button>
+    </div>
+</script>
+
+
+<script type="text/html" id="typeTpl">
+        <select name='tid' lay-verify='' lay-filter="select-tpl">
+         <option value="0" >请选择或搜索</option>
+            {{d.fieldOption}}
+        </select>
+</script>
+
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
+</script>
+
+<script type="text/html" title="操作按钮模板" id="buttonTpl">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">保存</a>
+</script>
+<script type="text/javascript">
+    layui.use(['form','layer','table','laytpl'], function() {
+        var table = layui.table,
+        form=layui.form,
+        layer=layui.layer,
+        $=layui.jquery,
+            laytpl = layui.laytpl;
+
+        table.render({
+            elem: '#dataTable'
+            ,url: '{:url('fieldlist')}?id={$mid}'//数据接口
+            ,skin: 'row'
+            ,even: true
+            ,text: {
+                none : '暂无相关数据'
+            }
+            ,toolbar: '#toolbar'
+            ,defaultToolbar: ['filter']
+            ,cols: [[ //表头
+                {type:'checkbox'}
+                ,{field: 'id', title: 'id'}
+                ,{field: 'title', title: '字段注释'}
+                ,{field: 'name', title: '字段名称'}
+                ,{field: 'tid',title: '字段类型外键', templet: '#typeTpl'}
+                //,{field: 'tid', title: '字段类型外键'}
+                ,{field: 'json_data', title: 'json数据'}
+                ,{field: 'tags', title: '标签'}
+                ,{field: 'field_order', title: '字段排序',edit:'text'}
+                ,{field: 'tips', title: '字段提示',edit:'text'}
+                ,{field: 'mid', title: '关联模型外键'}
+                ,{field: 'status', title: '状态', templet: '#statusTpl'}
+                ,{title: '操作', templet: '#buttonTpl'}
+            ]]
+        });
+        //监听单元格编辑
+        table.on('edit(fieldList)', function(obj){
+            var value = obj.value //得到修改后的值
+                ,data = obj.data //得到所在行所有键值
+                ,field = obj.field; //得到字段
+            layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+        });
+
+        table.on('tool(fieldList)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data;//获取当前行数据
+
+            if(layEvent === 'edit'){ //编辑
+                $.post("{:url('mycms/mymodel/editField')}",{data:data},function(data){
+                    var icon=5;
+                    if(data.code){
+                        icon=6;
+                    }
+                    layer.msg(data.msg, {icon:icon,time: 1500});
+                })
+            }
+
+        });
+        table.on('toolbar(fieldList)', function(obj){
+            var layEvent = obj.event;//获取事件
+            var data = table.checkStatus('dataTable').data;
+            console.log(data);
+            if(layEvent === 'tags'){ //增加tags
+                $.post("{:url('mycms/mymodel/tags')}",{data:data,mid:{$mid}},function(data){
+                    var icon=5;
+                    if(data.code){
+                        icon=6;
+                    }
+                    layer.msg(data.msg, {icon:icon,time: 1500});
+                })
+            }
+
+        });
+        table.on('row(fieldList)', function(obj){
+          //  console.log(obj.tr) //得到当前行元素对象
+          //  console.log(obj.data) //得到当前行数据
+            //obj.del(); //删除当前行
+            //obj.update(fields) //修改当前行数据
+            //监听select编辑
+
+        });
+        form.on('select(select-tpl)', function(obj){
+            var value =obj.value; //得到修改后的值
+            //存入table缓存中
+            console.log(obj);
+            console.log($(obj).parent());
+
+            //  console.log("data-----"+JSON.stringify(table.cache));
+            /*  var value = obj.value //得到修改后的值
+                  ,data = obj.data //得到所在行所有键值
+                  ,field = obj.field; //得到字段
+              layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);*/
+        });
+
+       function tags(){
+           var data=table.checkStatus('fieldList').data;
+           console.log(data);
+           $.post("{:url('tags')}",{data:data,mid:{$mid}},function(data){
+               var icon=5;
+               if(data.code){
+                   icon=6;
+               }
+               layer.msg(data.msg, {icon:icon,time: 1500});
+           })
+       }
+    });
+
+
+</script>

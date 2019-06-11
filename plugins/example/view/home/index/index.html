@@ -1,0 +1,30 @@
+<?php defined("IN_SYSTEM") or die("Access Denied");//防止模板被盗?><!DOCTYPE html>
+<html>
+<head>
+<link href="__PLUGINS_CSS__/min.css" rel="stylesheet" type="text/css" title="当前插件的CSS文件路径"  />
+<script src="__PLUGINS_JS__" title="当前插件的JS路径"></script>
+<img src="__PLUGINS_IMG__" style="display:none;" title="当前插件的image路径">
+</head>
+<body>
+<div style="width:1000px;margin:50px auto;">
+    <h1 style="text-align:center;">插件前台示例模板</h1>
+    <div style="float:left;background-color:#f5f5f5;width:760px;padding:20px;height:600px;">
+        <h3 style="text-align:center;">{$data['news']['title']}</h3>
+        <p style="text-align:center;">作者：{$data['news']['author']}&nbsp;&nbsp;&nbsp;&nbsp;来源：{$data['news']['source']}&nbsp;&nbsp;&nbsp;&nbsp;时间：{$data['news']['ctime']}</p>
+        <p>{$data['news']['content']|raw}</p>
+        <p><h1>当前插件的静态资源调用方法如下：</h1></p>
+        <p>当前插件的css路径：__PLUGINS_CSS__</p>
+        <p>当前插件的js路径：__PLUGINS_JS__</p>
+        <p>当前插件的image路径：__PLUGINS_IMG__</p>
+    </div>
+    <div style="float:right;background-color:#d5d5d5;width:180px;padding:20px 10px;height:600px;">
+        <h3>资讯分类</h3>
+        <ul>
+            {volist name="data['category']" id="vo"}
+            <li><a href="#">{$vo['name']}</a></li>
+            {/volist}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

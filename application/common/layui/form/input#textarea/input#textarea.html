@@ -1,0 +1,11 @@
+
+<!--多行文本域-->
+<div class="layui-form-item">
+    <label class="layui-form-label">{@title}</label>
+    <div class="layui-input-inline">
+        <textarea rows="6" class="layui-textarea" name="{@name}" autocomplete="off" placeholder="请填写{@title}">{:isset($data.{@name})?$data.{@name}:''}</textarea>
+    </div>
+    <div class="layui-form-mid layui-word-aux">{@tips}</div>
+</div>
+<!--多行文本域-->
+

@@ -1,0 +1,59 @@
+<div class="layui-collapse page-tips">
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">温馨提示</h2>
+    <div class="layui-colla-content layui-show">
+      <p>此页面为后台数据列表示例模板，您可以直接复制修改使用</p>
+    </div>
+  </div>
+</div>
+<div class="page-toolbar">
+    <div class="page-filter fr">
+        <form class="layui-form layui-form-pane" action="{:url()}" method="get" id="hisi-table-search">
+        <div class="layui-form-item">
+            <label class="layui-form-label">搜索</label>
+            <div class="layui-input-inline">
+                <input type="text" name="keyword" lay-verify="required" placeholder="输入关键词搜索" class="layui-input">
+            </div>
+        </div>
+        </form>
+    </div>
+    <div class="layui-btn-group fl">
+        <a href="{:url('add')}" class="layui-btn layui-btn-primary layui-icon layui-icon-add-circle-fine">&nbsp;添加</a>
+        <a data-href="{:url('status?val=1')}" class="layui-btn layui-btn-primary j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
+        <a data-href="{:url('status?val=0')}" class="layui-btn layui-btn-primary j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
+        <a data-href="{:url('del')}" class="layui-btn layui-btn-primary j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
+    </div>
+</div>
+<table id="dataTable"></table>
+{include file="system@block/layui" /}
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('status')}?id={{ d.id }}">
+</script>
+<script type="text/html" title="操作按钮模板" id="buttonTpl">
+    <a href="__ROOT_DIR__example/show?id={{ d.id }}" class="layui-btn layui-btn-xs layui-btn-primary">预览</a><a href="{:url('edit')}?id={{ d.id }}" class="layui-btn layui-btn-xs layui-btn-normal">修改</a><a href="{:url('del')}?id={{ d.id }}" class="layui-btn layui-btn-xs layui-btn-danger j-tr-del">删除</a>
+</script>
+<script type="text/javascript">
+    layui.use(['table'], function() {
+        var table = layui.table;
+        table.render({
+            elem: '#dataTable'
+            ,url: '{:url('', input('get.'))}' //数据接口
+            ,page: true //开启分页
+            ,skin: 'row'
+            ,even: true
+            ,limit: 20
+            ,text: {
+                none : '暂无相关数据'
+            }
+            ,cols: [[ //表头
+                {type:'checkbox'}
+                ,{field: 'title', title: '标题'}
+                ,{field: 'cid', title: '分类', templet: '<div><a href="{:url()}?cid={{ d.cid }}" class="hisi-table-a-filter">{{ d.has_category.name }}</a></div>'}
+                ,{field: 'author', title: '作者'}
+                ,{field: 'ctime', title: '时间'}
+                ,{field: 'status', title: '状态', width: 100, templet: '#statusTpl'}
+                ,{title: '操作', width: 160, templet: '#buttonTpl'}
+            ]]
+        });
+    });
+</script>
