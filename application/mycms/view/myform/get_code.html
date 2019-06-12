@@ -1,0 +1,23 @@
+
+
+<!--保存结果输出-->
+<div class="layui-card">
+    <div class="layui-card-header">保存结果输出</div>
+    <div class="layui-card-body layui-text">
+        <blockquote class="layui-elem-quote layui-quote-nm">
+            <pre id="jsonResult"><span class="layui-word-aux">请点击“保存”后查看输出信息……</span></pre>
+        </blockquote>
+    </div>
+</div>
+{include file="block/layui" /}
+
+<script type="text/javascript">
+    layui.use(['form','layer','table','laytpl'], function() {
+        var table = layui.table,
+            form = layui.form,
+            layer = layui.layer,
+            $ = layui.jquery,
+            laytpl = layui.laytpl,
+            dataTableId = "dataTableId";
+    });
+</script>

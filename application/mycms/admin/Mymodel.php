@@ -10,7 +10,7 @@
 namespace app\mycms\admin;
 use app\mp\controller\App;
 use app\mycms\model\ModelField;
-use app\mycms\model\FieldType;
+use app\mycms\model\FieldType as FieldTypeModel;
 use app\mycms\model\Mymodel as HisiModel;
 use app\system\admin\Admin;
 use think\Db;
@@ -55,7 +55,7 @@ class Mymodel extends Admin
         $this->view->assign('keywords', '模型列表关键字');
         $this->view->assign('description', '模型列表描述');
 
-        $id = $this->request->param('id', 0, 'intval');
+        $id = $this->request->param('mid', 0, 'intval');
         /*异步获取列表数据*/
         if ($this->request->isAjax()) {
             /*筛选配置信息*/
@@ -94,15 +94,15 @@ class Mymodel extends Admin
      */
     public static function fieldOption($id, $str = '')
     {
-        $list = FieldType::all();
-        $tid=ModelField::where('id',$id)->value('tid');
+        $list = FieldTypeModel::all();
+        $ftid=ModelField::where('id',$id)->value('ftid');
 
         foreach ($list as $v) {
 
-            if ($tid == $v['id']) {
-                $str .= '<option level="1" value="'.$v['id'].'" selected>['.$v['name'].']'.$v['title'].'</option>';
+            if ($ftid == $v['ftid']) {
+                $str .= '<option level="1" value="'.$v['ftid'].'" selected>['.$v['name'].']'.$v['title'].'</option>';
             } else {
-                $str .= '<option level="1" value="'.$v['id'].'">['.$v['name'].']'.$v['title'].'</option>';
+                $str .= '<option level="1" value="'.$v['ftid'].'">['.$v['name'].']'.$v['title'].'</option>';
             }
         }
         return $str;
@@ -111,7 +111,7 @@ class Mymodel extends Admin
     public function initField()
     {
         //获取传入参数
-        $id = $this->request->param('id', 0, 'intval');
+        $id = $this->request->param('mid', 0, 'intval');
         if ($id) {
             //获取模型名（不含前缀）
             $model = HisiModel::get(['mid' => $id])->name;
@@ -128,9 +128,9 @@ class Mymodel extends Admin
                 $list['title'] = is_array($result) ? end($result) : $result;
                 $list['json_data'] = is_array($result) ? array_pop($result) : 0;
                 $list['json_data'] = is_array($result) ? $result : 0;
-                $list['attr'] = 0;//初始字段信息
+                $list['attr'] = 0;//初始字段参数
                 $list['field_order'] = $key;//初始字段排序信息
-                $list['status'] = 1;//初始字段信息
+                $list['status'] = 1;//初始字段状态
                 $list['mid'] = $id;//关联模型外键
                 //将数据存入数据库
                 $object = new ModelField();
@@ -153,7 +153,7 @@ class Mymodel extends Admin
         if ($this->request->isPost()) { //ajax请求响应:编辑或新增
             //获取传入数据，并处理
             $data = [
-                'mid' => $this->request->param('id', 0, 'intval'),
+                'mid' => $this->request->param('mid', 0, 'intval'),
                 'name' => $this->request->param('name', '', 'trim'),
                 'title' => $this->request->param('title', '', 'trim'),
                 'remark' => $this->request->param('remark', '', 'trim'),
@@ -162,7 +162,7 @@ class Mymodel extends Admin
             ];
             $object = new HisiModel;
             if ($data['mid']) {//编辑
-                $res = $object->isUpdate()->save($data, ['id' => $data['id']]);
+                $res = $object->isUpdate()->save($data, ['mid' => $data['mid']]);
             } else {//新增
                 //返回bool值
                 unset($data['mid']);

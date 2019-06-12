@@ -1,0 +1,40 @@
+<form class="layui-form" action="{:url("mycms/field_type/editFieldType")}" method="post">
+<div class="layui-tab-item layui-show">
+    <div class="layui-form-item">
+        <label class="layui-form-label">字段类型标题</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-title" value="{:isset($data.title)?$data.title:''}" name="title" lay-verify="required" autocomplete="off" placeholder="请输入字段类型标题">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">字段类型名称</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-name" name="name" value="{:isset($data.name)?$data.name:''}" lay-verify="required" autocomplete="off" placeholder="请输入字段类型名称">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">字段类型状态</label>
+        <div class="layui-input-inline">
+            <input type="radio" class="field-status" name="status" value="1" title="启用" checked>
+            <input type="radio" class="field-status" name="status" value="0" title="禁用">
+        </div>
+    </div>
+</div>
+
+<div class="layui-form-item">
+    <div class="layui-input-block">
+        <input type="hidden" class="field-id" name="ftid" value="{:isset($data.ftid)?$data.ftid:''}">
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="formSubmit">提交</button>
+        <a href="{:url('field_type/fieldList')}" class="layui-btn layui-btn-primary ml10"><i class="aicon ai-fanhui"></i>返回</a>
+    </div>
+</div>
+</form>
+{include file="block/layui" /}
+<script>
+var formData = {:json_encode($formData)};
+layui.use(['form'], function() {
+    var $ = layui.jquery, form = layui.form;
+
+});
+</script>

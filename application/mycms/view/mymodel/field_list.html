@@ -24,8 +24,7 @@
 
 
 <script type="text/html" id="typeTpl">
-        <select name='tid' lay-verify='' lay-filter="select-tpl">
-         <option value="0" >请选择或搜索</option>
+    <a lay-event="select-tpl"></a><select name='ftid' lay-verify='' lay-filter="select-tpl">
             {{d.fieldOption}}
         </select>
 </script>
@@ -35,7 +34,8 @@
 </script>
 
 <script type="text/html" title="操作按钮模板" id="buttonTpl">
-    <a class="layui-btn layui-btn-xs" lay-event="edit">保存</a>
+
+    <a class="layui-btn layui-btn-xs" lay-event="save">保存</a>
 </script>
 <script type="text/javascript">
     layui.use(['form','layer','table','laytpl'], function() {
@@ -43,11 +43,12 @@
         form=layui.form,
         layer=layui.layer,
         $=layui.jquery,
-            laytpl = layui.laytpl;
+            laytpl = layui.laytpl,
+            dataTableId = "dataTableId";
 
         table.render({
             elem: '#dataTable'
-            ,url: '{:url('fieldlist')}?id={$mid}'//数据接口
+            ,url: '{:url('fieldlist')}?mid={$mid}'//数据接口
             ,skin: 'row'
             ,even: true
             ,text: {
@@ -60,8 +61,8 @@
                 ,{field: 'id', title: 'id'}
                 ,{field: 'title', title: '字段注释'}
                 ,{field: 'name', title: '字段名称'}
-                ,{field: 'tid',title: '字段类型外键', templet: '#typeTpl'}
-                //,{field: 'tid', title: '字段类型外键'}
+                ,{field: 'ftid',title: '字段类型外键', templet: '#typeTpl'}
+                //,{field: 'ftid', title: '字段类型外键'}
                 ,{field: 'json_data', title: 'json数据'}
                 ,{field: 'tags', title: '标签'}
                 ,{field: 'field_order', title: '字段排序',edit:'text'}
@@ -70,6 +71,40 @@
                 ,{field: 'status', title: '状态', templet: '#statusTpl'}
                 ,{title: '操作', templet: '#buttonTpl'}
             ]]
+            ,id: dataTableId
+        });
+     //   updateCacheOrForm("dataTable", "dataTableId", "form");
+        //定义事件集合
+        var active = {
+            updateRow: function(obj){
+                var oldData = table.cache[dataTableId];
+                console.log(oldData);
+                for(var i=0, row; i < oldData.length; i++){
+                    row = oldData[i];
+                    if(row.tempId == obj.tempId){
+                        $.extend(oldData[i], obj);
+                        return;
+                    }
+                }
+                tableIns.reload({
+                    data : oldData
+                });
+            },
+        };
+        //激活事件
+        var activeByType = function (type, arg) {
+            if(arguments.length === 2){
+                active[type] ? active[type].call(this, arg) : '';
+            }else{
+                active[type] ? active[type].call(this) : '';
+            }
+        };
+
+        //注册按钮事件
+        $('.layui-btn[data-type]').on('click', function () {
+            var type = $(this).data('type');
+            console.log(type);
+            activeByType(type);
         });
         //监听单元格编辑
         table.on('edit(fieldList)', function(obj){
@@ -80,19 +115,35 @@
         });
 
         table.on('tool(fieldList)', function(obj){
-            var layEvent = obj.event,
-                data = obj.data;//获取当前行数据
 
-            if(layEvent === 'edit'){ //编辑
-                $.post("{:url('mycms/mymodel/editField')}",{data:data},function(data){
-                    var icon=5;
-                    if(data.code){
-                        icon=6;
+            var data = obj.data,//获取当前行数据
+                event = obj.event, tr = obj.tr; //获得当前行 tr 的DOM对象;
+           //console.log(data);
+            switch(event){
+                case "save":
+                  console.log(data);
+                    $.post("{:url('mycms/mymodel/editField')}",{data:data},function(data){
+                        var icon=5;
+                        if(data.code){
+                            icon=6;
+                        }
+                        layer.msg(data.msg, {icon:icon,time: 1500});
+                    });
+                    break;
+                case "select-tpl":
+                    //console.log(data);
+                    var select = tr.find("select[name='ftid']");
+                    if(select){
+                        var selectedVal = select.val();
+                        if(!selectedVal){
+                            layer.tips("请选择一个分类", select.next('.layui-form-select'), { tips: [3, '#FF5722'] }); //吸附提示
+                        }
+                        console.log(selectedVal);
+                        $.extend(obj.data, {'select-tpl': selectedVal});//为jQuery对象添加方法
+                        activeByType('updateRow', obj.data);	//更新行记录对象
                     }
-                    layer.msg(data.msg, {icon:icon,time: 1500});
-                })
+                    break;
             }
-
         });
         table.on('toolbar(fieldList)', function(obj){
             var layEvent = obj.event;//获取事件
@@ -109,25 +160,21 @@
             }
 
         });
-        table.on('row(fieldList)', function(obj){
-          //  console.log(obj.tr) //得到当前行元素对象
-          //  console.log(obj.data) //得到当前行数据
-            //obj.del(); //删除当前行
-            //obj.update(fields) //修改当前行数据
-            //监听select编辑
 
-        });
         form.on('select(select-tpl)', function(obj){
-            var value =obj.value; //得到修改后的值
             //存入table缓存中
-            console.log(obj);
-            console.log($(obj).parent());
-
-            //  console.log("data-----"+JSON.stringify(table.cache));
-            /*  var value = obj.value //得到修改后的值
-                  ,data = obj.data //得到所在行所有键值
-                  ,field = obj.field; //得到字段
-              layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);*/
+            var elem = obj.elem //得到select原始DOM对象
+                ,value = obj.value,
+                oldData = table.cache[dataTableId];
+            var tableIndex=$(elem).closest('tr').attr('data-index');//得到行索引
+            for(var i=0, row; i < oldData.length; i++){
+                row = oldData[i];
+                if(i== tableIndex){
+                    oldData[i]['ftid']=value;
+                    console.log(oldData);
+                }
+            }
+            //  console.log(oldData);
         });
 
        function tags(){
@@ -141,6 +188,7 @@
                layer.msg(data.msg, {icon:icon,time: 1500});
            })
        }
+
     });
 
 

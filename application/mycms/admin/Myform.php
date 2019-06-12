@@ -142,10 +142,12 @@ class Myform extends Admin
         foreach ($list as $val) {
             $res[] = $val->toArray();
         }
-       dump($res);
+
         array_multisort(array_column($res,'field_order'),SORT_ASC,$res);
 
+        foreach ($res as $key=>$value){
 
+        }
         /*渲染对应模板*/
         return $this->fetch();
     }
