@@ -1,0 +1,66 @@
+<table id="dataTable" lay-filter="tableList"></table>
+
+{include file="block/layui" /}
+
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-group fl">
+        <a href="{:url('edittable')}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加表单</a>
+        <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
+    </div>
+</script>
+
+<script type="text/html" title="内容操作模板" id="contentTpl">
+    <a href="{:url('fieldList')}?tid={{ d.mid }}" class="layui-btn layui-btn-xs layui-btn-normal">内容管理</a>
+</script>
+
+<script type="text/html" title="字段操作模板" id="fieldTpl">
+    <a href="{:url('tableManage')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">字段管理</a>
+</script>
+
+<script type="text/html" title="代码操作模板" id="codeTpl">
+    <a href="{:url('getCode')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">获取代码</a>
+</script>
+
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
+</script>
+
+<script type="text/html" title="操作模板" id="buttonTpl">
+    <a href="{:url('edittable')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">编辑</a>
+    <a href="{:url('deletetable')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">删除</a>
+</script>
+
+<script type="text/javascript">
+    layui.use(['form','layer','table'], function() {
+        var table = layui.table;
+
+        table.render({
+            elem: '#dataTable'
+            ,url: '{:url("mycms/table/tablelist")}' //数据接口
+            ,skin: 'row'
+            ,even: true
+            ,text: {
+                none : '暂无相关数据'
+            }
+            ,toolbar: '#toolbar'
+            ,defaultToolbar: ['filter']
+            ,cols: [[ //表头
+                {type:'checkbox'}
+                ,{field: 'tid', title: 'tid'}
+                ,{field: 'title', title: '表单标题'}
+                ,{field: 'name', title: '表单名称'}
+                ,{field: 'remark', title: '备注说明'}
+                ,{field: 'mid', title: '模型外键'}
+                ,{field: 'tags', title: '标签'}
+                ,{title: '表单内容', templet: '#contentTpl'}
+                ,{title: '表单字段', templet: '#fieldTpl'}
+                ,{title: '表单代码', templet: '#codeTpl'}
+                ,{field: 'status', title: '状态', templet: '#statusTpl'}
+                ,{title: '操作', templet: '#buttonTpl'}
+            ]]
+        });
+
+    });
+
+
+</script>

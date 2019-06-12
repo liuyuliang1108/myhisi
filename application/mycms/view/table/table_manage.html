@@ -1,8 +1,3 @@
-{$field}字段名
-{$comment}注释
-{$array}单选数组字符串
-
-#select-set#
 <style>
     /* 防止下拉框的下拉列表被隐藏---必须设置--- */
     .layui-table-cell {            overflow: visible !important;        }
@@ -13,13 +8,9 @@
         margin-right: -15px;
     }
 </style>
-#select-set#
 
-#table#
-<!--表格-->
+
 <table id="dataTable" lay-filter="fieldManage" class="layui-table"></table>
-#table#
-
 <!--保存结果输出-->
 <div class="layui-card">
     <div class="layui-card-header">保存结果输出</div>
@@ -29,14 +20,7 @@
         </blockquote>
     </div>
 </div>
-
-#layui-temple#
-<!--layui框架公共文件-->
 {include file="block/layui" /}
-#layui-temple#
-
-#toolbar#
-<!--表格头部工具栏-->
 <script type="text/html" id="toolbar">
     <div class="layui-btn-group fl">
         <a data-href="{:url('statusRole?val=1')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
@@ -51,48 +35,33 @@
         </button>
     </div>
 </script>
-#toolbar#
 
-#select-tpl#
-<!--下拉框模板-->
+
 <script type="text/html" id="typeTpl">
     <a lay-event="select-tpl"></a><select name='ftid' lay-verify='' lay-filter="select-tpl">
         {{d.fieldOption}}
     </select>
 </script>
-#select-tpl#
 
-#switch-tpl#
-<!--开关模板-->
 <script type="text/html" id="statusTpl">
     <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
 </script>
-#switch-tpl#
 
-#button-tpl#
-<!--按钮模板-->
 <script type="text/html" title="操作按钮模板" id="buttonTpl">
     <a class="layui-btn layui-btn-xs" lay-event="save">保存</a>
 </script>
-#button-tpl#
-
-#layui-module-load#
-<!--layui模块加载-->
 <script type="text/javascript">
     layui.use(['form','layer','table','laytpl'], function() {
         var table = layui.table,
-            form=layui.form,
-            layer=layui.layer,
-            $=layui.jquery,
+        form=layui.form,
+        layer=layui.layer,
+        $=layui.jquery,
             laytpl = layui.laytpl,
             dataTableId = "dataTableId";
-#layui-module-load#
 
-#table-render#
-/*表格渲染*/
-        table.render({
+      table.render({
             elem: '#dataTable'
-            ,url: '{:url('formManage')}?fid={$fid}'//数据接口
+            ,url: '{:url('tableManage')}?tid={$tid}'//数据接口
             ,skin: 'row'
             ,even: true
             ,text: {
@@ -118,15 +87,12 @@
             ]]
             ,id: dataTableId
         });
-#table-render#
-
-#define-active#
         //定义事件集合
         var active = {
             addRow: function(){	//添加一行
                 var oldData = table.cache[dataTableId];
                 var newRow = oldData[0];
-                var id = oldData[0]['id'];
+                 var id = oldData[0]['id'];
                 newRow['id']=id+oldData.length;
                 oldData.push(newRow);
                 console.log(oldData);
@@ -172,7 +138,7 @@
                     }
                 }
                 document.getElementById("jsonResult").innerHTML = JSON.stringify(table.cache[dataTableId], null, 2);	//使用JSON.stringify() 格式化输出JSON字符串
-                $.post("{:url('tags')}",{data:table.cache[dataTableId],mid:{$fid}},function(data){
+                $.post("{:url('tags')}",{data:table.cache[dataTableId],mid:{$tid}},function(data){
                     var icon=5;
                     if(data.code){
                         icon=6;
@@ -181,9 +147,7 @@
                 })
             }
         }
-#define-active#
 
-#activation-event#
         //激活事件
         var activeByType = function (type, arg) {
             if(arguments.length === 2){
@@ -192,9 +156,7 @@
                 active[type] ? active[type].call(this) : '';
             }
         }
-#activation-event#
 
-#register-event#
         //注册按钮事件
         $('.layui-btn[data-type]').on('click', function () {
             var type = $(this).data('type');
@@ -207,10 +169,7 @@
                 ,field = obj.field; //得到字段
             layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
         });
-#register-event#
 
-#monitor-tool#
-            //监听行工具事件
         table.on('tool(fieldManage)', function(obj){
             var layEvent = obj.event,
                 data = obj.data,
@@ -219,7 +178,7 @@
             switch(event){
                 case "save":
                     console.log(data);
-                    $.post("{:url('mycms/mymodel/editField')}",{data:data},function(data){
+                    $.post("{:url('mycms/table/editField')}",{data:data},function(data){
                         var icon=5;
                         if(data.code){
                             icon=6;
@@ -228,7 +187,7 @@
                     });
                     break;
                 case "code":
-                    $.post("{:url('mycms/myform/getCode')}",{fid:{$fid}},function(data){
+                    $.post("{:url('mycms/table/getCode')}",{tid:{$tid}},function(data){
                         var icon=5;
                         if(data.code){
                             icon=6;
@@ -239,9 +198,6 @@
             }
 
         });
-#monitor-tool#
-#monitor-toolbar#
-//监听表格头部工具栏
         table.on('toolbar(fieldManage)', function(obj){
             var layEvent = obj.event;//获取事件
             var data = table.checkStatus('dataTable').data;
@@ -256,7 +212,7 @@
                     });
                     break;
                 case "tags":
-                    $.post("{:url('mycms/mymodel/tags')}",{data:data,mid:{$fid}},function(data){
+                    $.post("{:url('mycms/table/tags')}",{data:data,mid:{$tid}},function(data){
                         var icon=5;
                         if(data.code){
                             icon=6;
@@ -267,11 +223,8 @@
             }
 
         });
-#monitor-toolbar#
 
-#monitor-form#
-//监听表单
-            form.on('select(select-tpl)', function(obj){
+        form.on('select(select-tpl)', function(obj){
             //存入table缓存中
             var elem = obj.elem //得到select原始DOM对象
                 ,value = obj.value,
@@ -284,21 +237,19 @@
                     console.log(oldData);
                 }
             }
-            //  console.log(oldData);
+          //  console.log(oldData);
         });
-#monitor-form#
-
-        function tags(){
-            var data=table.checkStatus('fieldManage').data;
-            console.log(data);
-            $.post("{:url('tags')}",{data:data,mid:{$fid}},function(data){
-                var icon=5;
-                if(data.code){
-                    icon=6;
-                }
-                layer.msg(data.msg, {icon:icon,time: 1500});
-            })
-        }
+       function tags(){
+           var data=table.checkStatus('fieldManage').data;
+           console.log(data);
+           $.post("{:url('tags')}",{data:data,mid:{$tid}},function(data){
+               var icon=5;
+               if(data.code){
+                   icon=6;
+               }
+               layer.msg(data.msg, {icon:icon,time: 1500});
+           })
+       }
     });
 
 
