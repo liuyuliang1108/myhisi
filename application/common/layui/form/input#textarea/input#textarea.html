@@ -1,4 +1,4 @@
-
+#form-item#
 <!--多行文本域-->
 <div class="layui-form-item">
     <label class="layui-form-label">{@title}</label>
@@ -8,4 +8,9 @@
     <div class="layui-form-mid layui-word-aux">{@tips}</div>
 </div>
 <!--多行文本域-->
+#form-item#
 
+
+#script#
+$("#form-remark").val("{:isset($data.remark)?$data.remark:''}");
+#script#
