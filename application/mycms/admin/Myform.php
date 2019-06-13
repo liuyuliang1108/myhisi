@@ -91,6 +91,11 @@ class Myform extends Admin
 
                 $this->assign('data', $data);
             }
+            //获取菜单列表
+            $menu = ElementModel::where('pid', '=', 0)->order('sort desc')->column('eid,name');
+            $menu[0] = '顶级菜单';
+            ksort($menu);
+            $this->assign('menu', $menu);
             /*渲染对应模板*/
             return $this->fetch('form_form');
         }
@@ -301,4 +306,24 @@ $path=APP_PATH . 'common/layui';
         /*渲染对应模板*/
         return $this->fetch();
     }
+
+    /**
+     * @name getMenu
+     * @decs 异步获取菜单信息
+     * 关联model：
+     * @return false|string
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @author 老猫 <18368091722@163.com>
+     * Updated on: 2019/5/10 22:55
+     */
+    /*public function getMenu(){
+
+        $id = $this->request->param('eid', 0, 'intval');
+
+        $data = ElementModel::where('eid', '=', $id)->find();
+        return json_encode($data);
+
+    }*/
 }

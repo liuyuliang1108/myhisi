@@ -32,12 +32,36 @@
         </div>
     </div>
 
-    <div class="layui-form-item">
+  <!--  <div class="layui-form-item">
         <label class="layui-form-label">表单状态</label>
         <div class="layui-input-inline">
             <input type="radio" class="field-status" name="status" value="1" title="启用" checked>
             <input type="radio" class="field-status" name="status" value="0" title="禁用">
         </div>
+    </div>-->
+
+    <!--单选radio-->
+    <div class="layui-form-item">
+        <label class="layui-form-label">表单状态</label>
+        <div class="layui-input-block">
+            {form:radio name="status" list="['0'=>'禁用','1'=>'启用']" value="$data['status']"}
+        </div>
+        <div class="layui-form-mid layui-word-aux">选择表单状态</div>
+    </div>
+    <!--开关switch-->
+    <div class="layui-form-item">
+        <label class="layui-form-label">表单状态</label>
+        <div class="layui-input-inline">
+            <input type="checkbox" name="status" value="1" lay-skin="switch" lay-text="启用|禁用" {if condition="isset($data['status']) eq 1"}checked=""{/if}>
+        </div>
+        <div class="layui-form-mid layui-word-aux">选择表单状态</div>
+    </div>
+</div>
+
+<div class="layui-form-item">
+    <label class="layui-form-label">所属层级</label>
+    <div class="layui-input-block" id="parent-class">
+        {form:select name="pid" list="$menu" value="$data['pid']" option="['lay-verify'=>'required']"}
     </div>
 </div>
 
@@ -56,5 +80,22 @@ layui.use(['form'], function() {
     var $ = layui.jquery, form = layui.form;
 
     $("#form-remark").val("{:isset($data.remark)?$data.remark:''}");
+
+    //ajax异步获取菜单数据
+    $("input.layui-unselect").blur(function(){
+        var id = $("dd.layui-this").attr('lay-value');
+
+        $.ajax({
+            type: 'get',
+            url: "{:url('getMenu')}",
+            data: {id: id},
+            dataType: 'json',
+            success: function (data) {
+                data= $.parseJSON(data);
+                $("input[name='subject']").val(data.subject);
+            }
+        });
+
+    });
 });
 </script>

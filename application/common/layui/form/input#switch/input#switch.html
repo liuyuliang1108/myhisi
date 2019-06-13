@@ -3,7 +3,7 @@
 <div class="layui-form-item">
     <label class="layui-form-label">{@title}</label>
     <div class="layui-input-inline">
-        <input type="checkbox" name="{@name}" value="1" lay-skin="switch" lay-text="{@array}" {if condition=":isset($data.{@name})?$data.{@name}:'' eq 1"}checked=""{/if}>
+        <input type="checkbox" name="{@name}" value="1" lay-skin="switch" lay-text="{@array}" {if condition="isset($data.{@name}) eq 1"}checked=""{/if}>
     </div>
     <div class="layui-form-mid layui-word-aux">{@tips}</div>
 </div>

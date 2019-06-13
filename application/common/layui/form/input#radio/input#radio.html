@@ -2,14 +2,6 @@
 <!--单选radio-->
 <div class="layui-form-item">
     <label class="layui-form-label">{@title}</label>
-    <div class="layui-input-inline">
-        {volist name="v['options']" id="vv"}<input type="radio" name="id[{$v['id']}]" value="{$key}" title="{$vv}" {if condition="$key eq $v['value']"}checked{/if}>
-        {/volist}
-    </div>
-    <div class="layui-form-mid layui-word-aux">{@tips}</div>
-</div>
-<div class="layui-form-item">
-    <label class="layui-form-label">{@title}</label>
     <div class="layui-input-block">
         {form:radio name="{@name}" list="[{@list}]" value="$data['{@name}']"}
     </div>
