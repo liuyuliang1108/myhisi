@@ -3,10 +3,9 @@
 <div class="layui-form-item">
     <label class="layui-form-label">{@title}</label>
     <div class="layui-input-inline">
-        <input type="text" class="layui-input field-{@name}" name="{@name}" value="{:isset($data.{@name})?$data.{@name}:''}" lay-verify="required" autocomplete="off" placeholder="请输入{@title}">
+        <input type="text" class="layui-input field-{@name}" name="{@name}" value="{:isset($data.{@name})?$data.{@name}:''}" lay-verify="{@required}" autocomplete="off" placeholder="请输入{@title}">
     </div>
     <div class="layui-form-mid layui-word-aux">
         {@tips}
     </div>
 </div>
-<!--单行文本text-->

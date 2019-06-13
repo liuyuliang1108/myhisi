@@ -1,16 +1,15 @@
 #form-item#
-<!--多行文本域-->
+<!--多行文本域textarea-->
 <div class="layui-form-item">
     <label class="layui-form-label">{@title}</label>
     <div class="layui-input-inline">
-        <textarea rows="6" class="layui-textarea" name="{@name}" autocomplete="off" placeholder="请填写{@title}">{:isset($data.{@name})?$data.{@name}:''}</textarea>
+        <textarea  class="layui-textarea" name="{@name}" id="form-{@name}"  lay-verify="{@required}" autocomplete="off" placeholder="请填写{@title}"></textarea>
     </div>
     <div class="layui-form-mid layui-word-aux">{@tips}</div>
 </div>
-<!--多行文本域-->
 #form-item#
 
 
 #script#
-$("#form-remark").val("{:isset($data.remark)?$data.remark:''}");
+$("#form-{@name}").val("{:isset($data.{@name})?$data.{@name}:''}");
 #script#

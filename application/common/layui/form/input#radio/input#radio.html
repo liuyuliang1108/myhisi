@@ -8,5 +8,12 @@
     </div>
     <div class="layui-form-mid layui-word-aux">{@tips}</div>
 </div>
-<!--单选radio-->
+<div class="layui-form-item">
+    <label class="layui-form-label">{@title}</label>
+    <div class="layui-input-block">
+        {form:radio name="{@name}" list="[{@list}]" value="$data['{@name}']"}
+    </div>
+    <div class="layui-form-mid layui-word-aux">{@tips}</div>
+</div>
+
 

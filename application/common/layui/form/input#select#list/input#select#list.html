@@ -1,0 +1,13 @@
+
+<!--下拉列表select-->
+<div class="layui-form-item">
+    <label class="layui-form-label">{@title}</label>
+    <div class="layui-input-inline w300">
+        <select name="{@name}" class="field-{@name}" type="select" lay-filter="{@name}">
+            {volist name="selectList" id="v"}
+            <option value="{$key}"{if condition="$key eq input('param.{@name}')"}selected{/if}>[{$key}]{$v}</option>
+            {/volist}
+        </select>
+    </div>
+</div>
+
