@@ -8,7 +8,7 @@
 
 
 namespace app\mycms\admin;
-
+use app\system\model\SystemMenu as MenuModel;
 use app\mp\controller\App;
 use app\mycms\model\Form;
 use app\mycms\model\ModelField;
@@ -91,10 +91,10 @@ class Myform extends Admin
 
                 $this->assign('data', $data);
             }
-            //获取菜单列表
-            $menu = ElementModel::where('pid', '=', 0)->order('sort desc')->column('eid,name');
-            $menu[0] = '顶级菜单';
-            ksort($menu);
+
+            $menu= MenuModel::column('url','id');
+
+            $menu=array_filter($menu);
             $this->assign('menu', $menu);
             /*渲染对应模板*/
             return $this->fetch('form_form');
@@ -207,6 +207,7 @@ $path=APP_PATH . 'common/layui';
                     case 1://单行文本text
                     case 2://密码password
                     case 8://主键id
+                    case 9://下拉列表select
                         {
                             $tplname = $element->where(['ftid' => $ftid])->value('name');
                             $tplPath = $path . $element->where(['ftid' => $ftid])->value('dir') . '/' . $tplname . '.html';
@@ -259,7 +260,7 @@ $path=APP_PATH . 'common/layui';
                             $tplContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}', '{@list}'], [$name, $title, $tips, $required, $list], $tpl);
                             break;
                         }
-                    case 9://下拉列表select
+                   /* case 9://下拉列表select
                         {
                             $tplname = $element->where(['ftid' => $ftid])->value('name');
                             $tplPath = $path . $element->where(['ftid' => $ftid])->value('dir') . '/' . $tplname . '.html';
@@ -279,7 +280,7 @@ $path=APP_PATH . 'common/layui';
                             $script .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required], $formItem);
 
                             break;
-                        }
+                        }*/
                 }
 
             }

@@ -19,6 +19,12 @@
         <a data-href="{:url('statusRole?val=0')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
         <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
         <button class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" lay-event="tags">&nbsp;生成tags</button>
+        <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
+            <i class="layui-icon layui-icon-add-1"></i> 添加一行
+        </button>
+        <button type="button" class="layui-btn layui-btn-sm" data-type="saveAll" title="保存所有">
+            <i class="layui-icon layui-icon-ok-circle"></i> 保存所有
+        </button>
     </div>
 </script>
 
@@ -76,6 +82,17 @@
      //   updateCacheOrForm("dataTable", "dataTableId", "form");
         //定义事件集合
         var active = {
+            addRow: function(){	//添加一行
+                var oldData = table.cache[dataTableId];
+                var newRow = oldData[0];
+                var id = oldData[0]['id'];
+                newRow['id']=id+oldData.length;
+                oldData.push(newRow);
+                console.log(oldData);
+                table.reload(dataTableId,{
+                    data : oldData
+                });
+            },
             updateRow: function(obj){
                 var oldData = table.cache[dataTableId];
                 console.log(oldData);
@@ -90,7 +107,40 @@
                     data : oldData
                 });
             },
-        };
+            removeEmptyTableCache: function(){
+                var oldData = table.cache[dataTableId];
+                for(var i=0, row; i < oldData.length; i++){
+                    row = oldData[i];
+                    if(!row || !row.tempId){
+                        oldData.splice(i, 1);    //删除一项
+                    }
+                    continue;
+                }
+                tableIns.reload({
+                    data : oldData
+                });
+            },
+            saveAll: function(){
+                var oldData = table.cache[dataTableId];
+                console.log(oldData);
+                for(var i=0, row; i < oldData.length; i++){
+                    row = oldData[i];
+                    if(!row.ftid){
+                        layer.msg("检查每一行，请选择分类！", { icon: 5 }); //提示
+                        return;
+                    }
+                }
+                document.getElementById("jsonResult").innerHTML = JSON.stringify(table.cache[dataTableId], null, 2);	//使用JSON.stringify() 格式化输出JSON字符串
+                $.post("{:url('tags')}",{data:table.cache[dataTableId],mid:{$mid}},function(data){
+                    var icon=5;
+                    if(data.code){
+                        icon=6;
+                    }
+                    layer.msg(data.msg, {icon:icon,time: 1500});
+                })
+            }
+        }
+
         //激活事件
         var activeByType = function (type, arg) {
             if(arguments.length === 2){
@@ -98,30 +148,29 @@
             }else{
                 active[type] ? active[type].call(this) : '';
             }
-        };
+        }
 
         //注册按钮事件
         $('.layui-btn[data-type]').on('click', function () {
             var type = $(this).data('type');
-            console.log(type);
             activeByType(type);
         });
         //监听单元格编辑
-        table.on('edit(fieldList)', function(obj){
+        table.on('edit(fieldManage)', function(obj){
             var value = obj.value //得到修改后的值
                 ,data = obj.data //得到所在行所有键值
                 ,field = obj.field; //得到字段
             layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
         });
 
-        table.on('tool(fieldList)', function(obj){
+        table.on('tool(fieldManage)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data,
+                event = obj.event;//获取当前行数据
 
-            var data = obj.data,//获取当前行数据
-                event = obj.event, tr = obj.tr; //获得当前行 tr 的DOM对象;
-           //console.log(data);
             switch(event){
                 case "save":
-                  console.log(data);
+                    console.log(data);
                     $.post("{:url('mycms/mymodel/editField')}",{data:data},function(data){
                         var icon=5;
                         if(data.code){
@@ -130,33 +179,40 @@
                         layer.msg(data.msg, {icon:icon,time: 1500});
                     });
                     break;
-                case "select-tpl":
-                    //console.log(data);
-                    var select = tr.find("select[name='ftid']");
-                    if(select){
-                        var selectedVal = select.val();
-                        if(!selectedVal){
-                            layer.tips("请选择一个分类", select.next('.layui-form-select'), { tips: [3, '#FF5722'] }); //吸附提示
+                case "code":
+                    $.post("{:url('mycms/myform/getCode')}",{mid:{$mid}},function(data){
+                        var icon=5;
+                        if(data.code){
+                            icon=6;
                         }
-                        console.log(selectedVal);
-                        $.extend(obj.data, {'select-tpl': selectedVal});//为jQuery对象添加方法
-                        activeByType('updateRow', obj.data);	//更新行记录对象
-                    }
+                        layer.msg(data.msg, {icon:icon,time: 1500});
+                    });
                     break;
             }
+
         });
-        table.on('toolbar(fieldList)', function(obj){
+        table.on('toolbar(fieldManage)', function(obj){
             var layEvent = obj.event;//获取事件
             var data = table.checkStatus('dataTable').data;
             console.log(data);
-            if(layEvent === 'tags'){ //增加tags
-                $.post("{:url('mycms/mymodel/tags')}",{data:data,mid:{$mid}},function(data){
-                    var icon=5;
-                    if(data.code){
-                        icon=6;
-                    }
-                    layer.msg(data.msg, {icon:icon,time: 1500});
-                })
+            switch(layEvent){
+                case "table-add":
+                    var oldData =  table.cache[dataTableId];
+                    var data1=oldData[0];
+                    oldData.push(data1);
+                    table.reload(dataTableId,{
+                        data : oldData
+                    });
+                    break;
+                case "tags":
+                    $.post("{:url('mycms/mymodel/tags')}",{data:data,mid:{$mid}},function(data){
+                        var icon=5;
+                        if(data.code){
+                            icon=6;
+                        }
+                        layer.msg(data.msg, {icon:icon,time: 1500});
+                    })
+                    break;
             }
 
         });
@@ -176,19 +232,17 @@
             }
             //  console.log(oldData);
         });
-
-       function tags(){
-           var data=table.checkStatus('fieldList').data;
-           console.log(data);
-           $.post("{:url('tags')}",{data:data,mid:{$mid}},function(data){
-               var icon=5;
-               if(data.code){
-                   icon=6;
-               }
-               layer.msg(data.msg, {icon:icon,time: 1500});
-           })
-       }
-
+        function tags(){
+            var data=table.checkStatus('fieldManage').data;
+            console.log(data);
+            $.post("{:url('tags')}",{data:data,mid:{$mid}},function(data){
+                var icon=5;
+                if(data.code){
+                    icon=6;
+                }
+                layer.msg(data.msg, {icon:icon,time: 1500});
+            })
+        }
     });
 
 

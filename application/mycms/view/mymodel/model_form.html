@@ -1,4 +1,4 @@
-<form class="layui-form" action="{:url("mycms/mymodel/editModel")}" method="post">
+<form class="layui-form layui-form-pane" action="{:url("mycms/mymodel/editModel")}" method="post">
 <div class="layui-tab-item layui-show">
     <div class="layui-form-item">
         <label class="layui-form-label">模型标题</label>
@@ -6,12 +6,14 @@
             <input type="text" class="layui-input field-title" value="{:isset($data.title)?$data.title:''}" name="title" lay-verify="required" autocomplete="off" placeholder="请输入模型标题">
         </div>
     </div>
+
     <div class="layui-form-item">
-        <label class="layui-form-label">模型名称</label>
-        <div class="layui-input-inline">
-            <input type="text" class="layui-input field-name" name="name" value="{:isset($data.name)?$data.name:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型名称">
+        <label class="layui-form-label">数据表名称</label>
+        <div class="layui-input-block" id="parent-class">
+            {form:select name="name" list="$menu" value="$data['name']" option="['lay-verif'=>'required']"}
         </div>
     </div>
+
     <div class="layui-form-item">
         <label class="layui-form-label">模型备注</label>
         <div class="layui-input-inline">

@@ -186,6 +186,16 @@ class Mymodel extends Admin
 
                 $this->assign('data', $data);
             }
+            //获取下拉列表
+            $result=Db::query("SELECT `TABLE_NAME` FROM information_schema.TABLES WHERE `TABLE_SCHEMA` = 'hisi' AND `TABLE_TYPE` = 'BASE TABLE';");
+$prefix=config('database.prefix');
+$menu=[];
+foreach($result as $k=>$v){
+    $str=str_replace($prefix,"",$v['TABLE_NAME']);
+    $menu[$str]=$str;
+}
+ksort($menu);
+$this->assign('menu', $menu);
             /*渲染对应模板*/
             return $this->fetch('model_form');
         }

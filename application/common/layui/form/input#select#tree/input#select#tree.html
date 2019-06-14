@@ -4,11 +4,22 @@
 <div class="layui-form-item">
     <label class="layui-form-label">{@title}</label>
     <div class="layui-input-block" id="parent-class">
-        {form:select name="{@name}" list="$menu" value="$data['pid']" option="['lay-verify'=>'required']"}
+        {form:select name="{@name}" list="$menu" value="$data['pid']" option="['lay-verify'=>'{@required}']"}
     </div>
 </div>
 #form-item#
-
+<div class="layui-form-item">
+    <label class="layui-form-label">所属菜单</label>
+    <div class="layui-input-inline">
+        <select name="pid" class="field-pid" type="select" lay-filter="pid">
+            <option value="0" level="0">顶级菜单</option>
+            {$menuOptions|raw}
+        </select>
+    </div>
+    <div class="layui-form-mid layui-word-aux">
+        尽量选择与所属模块一致的菜单，根据 “[ ]” 里面的内容判断
+    </div>
+</div>
 #script#
 //ajax异步获取菜单数据
 $("input.layui-unselect").blur(function(){

@@ -32,13 +32,6 @@
         </div>
     </div>
 
-  <!--  <div class="layui-form-item">
-        <label class="layui-form-label">表单状态</label>
-        <div class="layui-input-inline">
-            <input type="radio" class="field-status" name="status" value="1" title="启用" checked>
-            <input type="radio" class="field-status" name="status" value="0" title="禁用">
-        </div>
-    </div>-->
 
     <!--单选radio-->
     <div class="layui-form-item">
@@ -48,23 +41,14 @@
         </div>
         <div class="layui-form-mid layui-word-aux">选择表单状态</div>
     </div>
-    <!--开关switch-->
+
     <div class="layui-form-item">
-        <label class="layui-form-label">表单状态</label>
-        <div class="layui-input-inline">
-            <input type="checkbox" name="status" value="1" lay-skin="switch" lay-text="启用|禁用" {if condition="isset($data['status']) eq 1"}checked=""{/if}>
+        <label class="layui-form-label">系统菜单id</label>
+        <div class="layui-input-block" id="parent-class">
+            {form:select name="smid" list="$menu" value="$data['smid']" option="['lay-verif'=>'required']"}
         </div>
-        <div class="layui-form-mid layui-word-aux">选择表单状态</div>
     </div>
 </div>
-
-<div class="layui-form-item">
-    <label class="layui-form-label">所属层级</label>
-    <div class="layui-input-block" id="parent-class">
-        {form:select name="pid" list="$menu" value="$data['pid']" option="['lay-verify'=>'required']"}
-    </div>
-</div>
-
 <div class="layui-form-item">
     <div class="layui-input-block">
         <input type="hidden" class="field-id" name="fid" value="{:isset($data.fid)?$data.fid:''}">
