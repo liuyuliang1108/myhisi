@@ -31,6 +31,7 @@
         <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加templet行按钮'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加templet行按钮</a>
         <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听tool按钮'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听tool按钮</a>
         <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏事件'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听头工具栏事件</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏注册事件'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听头工具栏注册事件</a>
         <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
             <i class="layui-icon layui-icon-add-1"></i> 添加一行
         </button>
@@ -216,7 +217,7 @@
                     });
                     break;
                 case "tags":
-                    $.post("{:url('mycms/mymodel/tags')}",{data:data,mid:{$mid}},function(data){
+                    $.post("{:url('mycms/mymodel/tags')}",{data:data,tid:{$tid}},function(data){
                         var icon=5;
                         if(data.code){
                             icon=6;

@@ -246,7 +246,8 @@ class Table extends Admin
         $tags=TableModel::where('tid',$id)->value('tags');
         $smid = FormModel::where('fid', $id)->value('smid');
 
-        $formInfo=MymodelModel::get($mid);
+        $formInfo=MymodelModel::get(['mid'=>$mid]);
+        $modelName=$formInfo['name'];
         //查询获得表主键字段
         $sql='SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='.$formInfo['name']. 'AND constraint_name=`PRIMARY`';
         $mymodel=new MymodelModel;
@@ -293,10 +294,7 @@ class Table extends Admin
         $toolbarHeader = substr($result[0], strlen($flag));
 
 
-        $flag = "#toolbar-footer#";
-        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
-        preg_match($match, $tableTpl, $result);
-        $toolbarFooter = substr($result[0], strlen($flag));
+
 
         $flag = "#templet-button#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
@@ -304,6 +302,11 @@ class Table extends Admin
         $templetButton = substr($result[0], strlen($flag));
         //基础文件变量字符替换
         $templetButton= str_replace(['{@controller}','{@primary}'], [$controller,$primary],$templetButton);
+
+        $flag = "#toolbar-footer#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tableTpl, $result);
+        $toolbarFooter = substr($result[0], strlen($flag));
 
         $flag = "#module-load#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
@@ -324,6 +327,21 @@ class Table extends Admin
         preg_match($match, $tableTpl, $result);
         $tableRenderFooter = substr($result[0], strlen($flag));
 
+        $flag = "#toolbar-datatype-header#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tableTpl, $result);
+        $toolbarDatatypeHeader = substr($result[0], strlen($flag));
+
+        $flag = "#toolbar-datatype-footer#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tableTpl, $result);
+        $toolbarDatatypeFooter = substr($result[0], strlen($flag));
+
+        $flag = "#register-event#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tableTpl, $result);
+        $registerEvent = substr($result[0], strlen($flag));
+
         $flag = "#table-tool-header#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
         preg_match($match, $tableTpl, $result);
@@ -335,6 +353,18 @@ class Table extends Admin
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
         preg_match($match, $tableTpl, $result);
         $tableToolFooter = substr($result[0], strlen($flag));
+
+        $flag = "#table-toolbar-header#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tableTpl, $result);
+        $tabletoolbarHeader = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $tabletoolbarHeader= str_replace(['{@controller}'], [$controller],$tabletoolbarHeader);
+
+        $flag = "#table-toolbar-footer#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tableTpl, $result);
+        $tabletoolbarFooter = substr($result[0], strlen($flag));
 
         $flag = "#script-select#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
@@ -355,12 +385,12 @@ class Table extends Admin
         $tableToolContent='';
         $buttonToolbarContent='';
         $tableToolbarContent='';
+        $toolbarDatatypeContent='';
         $tableToolFlag=0;
         $tableToolbarFlag=0;
         $tableSelectFlag=0;
-        $tplContent='';
+        $toolbarDatatypeFlag=0;
         $phpContent='';
-        $script='';
         foreach ($res as $key => $value) {
             $name = $value['name'];
             $title = $value['title'];
@@ -482,7 +512,30 @@ class Table extends Admin
                             preg_match($match, $tpl, $result);
                             $scriptTpl = substr($result[0], strlen($flag));
                             //基础文件变量字符替换
-                            $tableToolbarContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required],$scriptTpl);
+                            $colsContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required],$scriptTpl);
+                            break;
+                        }
+                    case 22://toolbar#datatype 注册事件
+                        {
+                            $toolbarDatatypeFlag++;
+                            $flag = "#htmlTpl#";
+                            $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+                            preg_match($match, $tpl, $result);
+                            $htmlTpl = substr($result[0], strlen($flag));
+                            //基础文件变量字符替换
+                            $buttonToolbarContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required], $htmlTpl);
+
+                            $flag = "#scriptTpl#";
+                            $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+                            preg_match($match, $tpl, $result);
+                            $scriptTpl = substr($result[0], strlen($flag));
+                            $targetModel = $jsonData[0];
+                            //查询获得表主键字段
+                            $sql='SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='.$formInfo['name']. 'AND constraint_name=`PRIMARY`';
+                            $target=new $targetModel.'Model';
+                            $targetPrimary=$target->query($sql);
+                            //基础文件变量字符替换
+                            $toolbarDatatypeContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}', '{@model}', '{@primary}', '{@targetModel}', '{@targetPrimary}'], [$name, $title, $tips, $required,$modelName,$primary,$targetModel,$targetPrimary],$scriptTpl);
                             break;
                         }
                 }
@@ -505,7 +558,25 @@ class Table extends Admin
                 }
             }
         }
-        $tplHtml=$formHeader.$tplContent.$formSubmit.$moduleLoad.$script.$formFoot;
+
+        if (!$tableToolFlag) {
+            $tableToolHeader='';
+            $tableToolFooter='';
+        }
+        if (!$tableToolbarFlag) {
+            $tabletoolbarHeader='';
+            $tabletoolbarFooter='';
+        }
+        if (!$tableSelectFlag) {
+            $selectSet='';
+            $scriptSelect='';
+        }
+        if (!$toolbarDatatypeFlag) {
+            $toolbarDatatypeHeader='';
+            $toolbarDatatypeFooter='';
+            $registerEvent='';
+        }
+        $tplHtml=$selectSet.$tableHeader.$toolbarHeader.$templetButton.$toolbarFooter.$moduleLoad.$tableRenderHeader.$colsContent.$tableRenderFooter.$toolbarDatatypeHeader.$toolbarDatatypeContent.$toolbarDatatypeFooter.$registerEvent.$tableToolHeader.$tableToolContent.$tableToolFooter.$tabletoolbarHeader.$tableToolbarContent.$tabletoolbarFooter.$scriptSelect.$tableFooter;
 
         /*渲染对应模板*/
         return $this->fetch();

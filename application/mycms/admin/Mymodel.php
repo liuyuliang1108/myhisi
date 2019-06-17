@@ -14,6 +14,8 @@ use app\mycms\model\FieldType as FieldTypeModel;
 use app\mycms\model\Mymodel as HisiModel;
 use app\mycms\model\Element as ElementModel;
 use app\system\admin\Admin;
+use app\mycms\model\Mymodel as MymodelModel;
+use app\mycms\model\Table as TableModel;
 use think\Db;
 class Mymodel extends Admin
 {
@@ -229,9 +231,23 @@ $this->assign('menu', $menu);
             //获取传入数据，并处理
             $data = $this->request->param('data');
             $mid=$this->request->param('mid');
+            $midFlag=$mid;
+            $fid=$this->request->param('fid');
+            $tid=$this->request->param('tid');
             $object = new ModelField();
             //获取tags
-            $tags=$object->where('mid',$mid)->max('tags')+1;
+            if ($mid) {
+                $tags=$object->where('mid',$mid)->max('tags')+1;
+            }
+            if ($fid) {
+                $mid=MymodelModel::where('fid',$fid)->value('mid');
+                $tags=$object->where('mid',$mid)->max('tags')+1;
+            }
+            if ($tid) {
+                $mid=TableModel::where('tid',$tid)->value('mid');
+                $tags=$object->where('mid',$mid)->max('tags')+1;
+            }
+
 
             foreach ($data as $value){
                 $value['tags']=$tags;
@@ -241,9 +257,15 @@ $this->assign('menu', $menu);
             }
             $res = $object->saveAll($newData);
             if ($res) {
-
-                $this->success('保存成功', url('modelList'));
-
+                if ($fid) {
+                    $this->success('保存成功', url('formList'));
+                }
+                if ($tid) {
+                    $this->success('保存成功', url('tableList'));
+                }
+                if ($midFlag) {
+                    $this->success('保存成功', url('modelList'));
+                }
             } else {
                 $this->error('保存失败');
             }

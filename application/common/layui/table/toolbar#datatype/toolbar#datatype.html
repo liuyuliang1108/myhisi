@@ -1,0 +1,27 @@
+#htmlTpl#
+<button type="button" class="layui-btn layui-btn-sm" data-type="{@name}" title="{@title}"><i class="layui-icon layui-icon-ok-circle"></i> {@title}</button>
+#htmlTpl#
+
+#scriptTpl#
+ saveAll: function(){
+                var oldData = table.cache[dataTableId];
+                console.log(oldData);
+                for(var i=0, row; i < oldData.length; i++){
+                    row = oldData[i];
+                    if(!row.ftid){
+                        layer.msg("检查每一行，请选择分类！", { icon: 5 }); //提示
+                        return;
+                    }
+                }
+                document.getElementById("jsonResult").innerHTML = JSON.stringify(table.cache[dataTableId], null, 2);	//使用JSON.stringify() 格式化输出JSON字符串
+                $.post("{:url('tags')}",{data:table.cache[dataTableId],mid:{$mid}},function(data){
+                    var icon=5;
+                    if(data.code){
+                        icon=6;
+                    }
+                    layer.msg(data.msg, {icon:icon,time: 1500});
+                })
+            }
+#scriptTpl#
+
+

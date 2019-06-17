@@ -150,7 +150,7 @@
 
         //激活事件
         var activeByType = function (type, arg) {
-            if(arguments.length === 2){
+            if(arguments.length === 2){  //arguments.length会知道你输入的了几个参数。并可以通过索引器获得这几个参数的值
                 active[type] ? active[type].call(this, arg) : '';
             }else{
                 active[type] ? active[type].call(this) : '';
@@ -212,7 +212,7 @@
                     });
                     break;
                 case "tags":
-                    $.post("{:url('mycms/mymodel/tags')}",{data:data,mid:{$fid}},function(data){
+                    $.post("{:url('mycms/mymodel/tags')}",{data:data,fid:{$fid}},function(data){
                         var icon=5;
                         if(data.code){
                             icon=6;
