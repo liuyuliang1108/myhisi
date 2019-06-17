@@ -8,6 +8,7 @@
 namespace app\mycms\admin;
 
 use app\system\admin\Admin;
+use app\mycms\model\FieldType as FieldTypeModel;
 use app\mycms\model\Element as ElementModel;
 use think\Request;
 
@@ -35,6 +36,7 @@ class Element extends Admin
                 'js' => $this->request->post('js', 0, 'intval'),
                 'tpl' => $this->request->post('tpl', 0, 'intval'),
                 'php' => $this->request->post('php', 0, 'intval'),
+                'ftid' => $this->request->post('ftid', 0, 'intval'),
             ];
             $pId=$data['pid'];
             $result=[];
@@ -75,6 +77,11 @@ class Element extends Admin
             $menu[0] = '顶级菜单';
             ksort($menu);
             $this->assign('menu', $menu);
+
+            //获取模型外键列表
+            $ftidMenu= FieldTypeModel::column('name','ftid');
+            $ftidMenu=array_filter($ftidMenu);
+            $this->assign('ftidMenu', $ftidMenu);
             return $this->fetch();
         }
     }

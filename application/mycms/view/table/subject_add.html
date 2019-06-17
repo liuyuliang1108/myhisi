@@ -1,0 +1,69 @@
+<form class="layui-form" action="{:url("mycms/table/subjectAdd")}" method="post">
+<div class="layui-tab-item layui-show">
+    <div class="layui-form-item">
+        <label class="layui-form-label">组件类型外键</label>
+        <div class="layui-input-block" id="eid-class">
+            {form:select name="eid" list="$eidMenu" value="$data['eid']" option="['lay-verif'=>'required']"}
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{$subjectTitle}标题</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-title" value="" name="title" lay-verify="required" autocomplete="off" placeholder="请输入{$subjectTitle}标题">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">{$subjectTitle}名称</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-name" name="name" value="" lay-verify="required" autocomplete="off" placeholder="{$subjectTitle}名称">
+        </div>
+    </div>
+
+    <!--单选radio-->
+    <div class="layui-form-item">
+        <label class="layui-form-label">字段类型状态</label>
+        <div class="layui-input-block">
+            {form:radio name="status" list="['0'=>'禁用','1'=>'启用']" value="$data['status']"}
+        </div>
+        <div class="layui-form-mid layui-word-aux">选择字段类型状态</div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型外键</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-mid" name="mid" value="{:isset($data.mid)?$data.mid:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型外键">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">模型tags</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-tags" name="tags" value="{:isset($data.tags)?$data.tags:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型tags">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">{$subjectTitle}json数据</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input field-json_data" name="json_data" value="" lay-verify="" autocomplete="off" placeholder="{$subjectTitle}json数据">
+        </div>
+    </div>
+
+</div>
+
+<div class="layui-form-item">
+    <div class="layui-input-block">
+        <input type="hidden" class="field-tid" name="tid" value="{$data.tid}">
+        <button type="submit" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="formSubmit">提交</button>
+        <a href="{:url('table/tableList')}" class="layui-btn layui-btn-primary ml10"><i class="aicon ai-fanhui"></i>返回</a>
+    </div>
+</div>
+</form>
+{include file="block/layui" /}
+<script>
+var formData = {:json_encode($formData)};
+layui.use(['form'], function() {
+    var $ = layui.jquery, form = layui.form;
+
+});
+</script>

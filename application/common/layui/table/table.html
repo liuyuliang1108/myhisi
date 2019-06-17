@@ -1,7 +1,3 @@
-{$field}字段名
-{$comment}注释
-{$array}单选数组字符串
-
 #select-set#
 <style>
     /* 防止下拉框的下拉列表被隐藏---必须设置--- */
@@ -14,209 +10,100 @@
     }
 </style>
 #select-set#
+#table-header#
+<table id="dataTable" lay-filter="{@method}" class="layui-table"></table>
 
-#table#
-<!--表格-->
-<table id="dataTable" lay-filter="fieldManage" class="layui-table"></table>
-#table#
-
-<!--保存结果输出-->
-<div class="layui-card">
-    <div class="layui-card-header">保存结果输出</div>
-    <div class="layui-card-body layui-text">
-        <blockquote class="layui-elem-quote layui-quote-nm">
-            <pre id="jsonResult"><span class="layui-word-aux">请点击“保存”后查看输出信息……</span></pre>
-        </blockquote>
-    </div>
-</div>
-
-#layui-temple#
-<!--layui框架公共文件-->
 {include file="block/layui" /}
-#layui-temple#
+#table-header#
 
-#toolbar#
-<!--表格头部工具栏-->
+#toolbar-header#
 <script type="text/html" id="toolbar">
     <div class="layui-btn-group fl">
-        <a data-href="{:url('statusRole?val=1')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
-        <a data-href="{:url('statusRole?val=0')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
+#toolbar-header#
+        <a href="{:url('editform')}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加表单</a>
         <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
-        <button class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" lay-event="tags">&nbsp;生成tags</button>
-        <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
-            <i class="layui-icon layui-icon-add-1"></i> 添加一行
-        </button>
-        <button type="button" class="layui-btn layui-btn-sm" data-type="saveAll" title="保存所有">
-            <i class="layui-icon layui-icon-ok-circle"></i> 保存所有
-        </button>
+#toolbar-footer#
     </div>
 </script>
-#toolbar#
+#toolbar-footer#
 
-#select-tpl#
-<!--下拉框模板-->
-<script type="text/html" id="typeTpl">
-    <a lay-event="select-tpl"></a><select name='ftid' lay-verify='' lay-filter="select-tpl">
-        {{d.fieldOption}}
-    </select>
+#templet#
+<script type="text/html" title="内容操作模板" id="contentTpl">
+    <a href="{:url('fieldList')}?fid={{ d.mid }}" class="layui-btn layui-btn-xs layui-btn-normal">内容管理</a>
 </script>
-#select-tpl#
+#templet#
 
-#switch-tpl#
-<!--开关模板-->
+<script type="text/html" title="字段操作模板" id="fieldTpl">
+    <a href="{:url('formManage')}?fid={{ d.fid }}" class="layui-btn layui-btn-xs layui-btn-normal">字段管理</a>
+</script>
+
+<script type="text/html" title="代码操作模板" id="codeTpl">
+    <a href="{:url('getCode')}?fid={{ d.fid }}" class="layui-btn layui-btn-xs layui-btn-normal">获取代码</a>
+</script>
+
 <script type="text/html" id="statusTpl">
     <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
 </script>
-#switch-tpl#
 
-#button-tpl#
-<!--按钮模板-->
-<script type="text/html" title="操作按钮模板" id="buttonTpl">
-    <a class="layui-btn layui-btn-xs" lay-event="save">保存</a>
+#templet-button#
+<script type="text/html" title="操作模板" id="buttonTpl">
+    <a href="{:url('edit{@controller}')}?{@primary}={{ d.{@primary} }}" class="layui-btn layui-btn-xs layui-btn-normal">编辑</a>
+    <a href="{:url('delete{@controller}')}?{@primary}={{ d.{@primary} }}" class="layui-btn layui-btn-xs layui-btn-normal">删除</a>
+#templet-button#
+
+#module-load#
+
 </script>
-#button-tpl#
-
-#layui-module-load#
-<!--layui模块加载-->
 <script type="text/javascript">
-    layui.use(['form','layer','table','laytpl'], function() {
+    layui.use(['form','layer','table'], function() {
         var table = layui.table,
             form=layui.form,
             layer=layui.layer,
             $=layui.jquery,
-            laytpl = layui.laytpl,
-            dataTableId = "dataTableId";
-        #layui-module-load#
+            dataTableId = "dataTableId";;
+#module-load#
 
-        #table-render#
-            /*表格渲染*/
-            table.render({
-            elem: '#dataTable'
-            ,url: '{:url('formManage')}?fid={$fid}'//数据接口
-            ,skin: 'row'
+#table-render-header#
+        table.render({
+            elem: '#dataTable' //指定原始 table 容器的选择器或 DOM
+            ,url: '{:url("{@controller}list")}' //数据接口
+            ,skin: 'row' //设定表格各种外观、尺寸等
             ,even: true
             ,text: {
                 none : '暂无相关数据'
-            }
-            ,toolbar: '#toolbar'
-            ,defaultToolbar: ['filter']
-            ,cols: [[ //表头
-                {type:'checkbox'}
-                ,{field: 'id', title: 'id'}
-                ,{field: 'title', title: '字段标题'}
-                ,{field: 'name', title: '字段名称'}
-                ,{field: 'ftid',title: '字段类型外键', templet: '#typeTpl'}
-                //,{field: 'ftid', title: '字段类型外键'}
-                ,{field: 'json_data', title: 'json数据'}
+            }//自定义文本，如空数据时的异常提示等
+            ,toolbar: '#toolbar'  //开启表格头部工具栏区域 参数支持四种类型值：toolbar: '#toolbarDemo' //指向自定义工具栏模板选择器 toolbar: '<div>xxx</div>' //直接传入工具栏模板字符
+            //toolbar: true //仅开启工具栏，不显示左侧模板 toolbar: 'default' //让工具栏左侧显示默认的内置模板
+            ,defaultToolbar: ['filter']   //自由配置头部工具栏右侧的图标 filter: 显示筛选图标  exports: 显示导出图标  print: 显示打印图标
+            ,cols: [[ //表头         表头参数 field:设定字段名。字段名的设定非常重要，且是表格数据列的唯一标识 title:设定标题名称 fixed 固定列。可选值有：left（固定在左）、right（固定在右） edit:单元格编辑类型 目前只支持：text（输入框）
+                {type:'checkbox'}//设定列类型。可选值有： normal（常规列，无需设定） checkbox（复选框列） radio（单选框列，layui 2.4.0 新增） numbers（序号列） space（空列）
+#table-render=header#
+
+                ,{field: 'fid', title: 'fid'}
+                ,{field: 'title', title: '表单标题'}
+                ,{field: 'name', title: '表单名称'}
+                ,{field: 'remark', title: '备注说明'}
+                ,{field: 'mid', title: '模型外键'}
                 ,{field: 'tags', title: '标签'}
-                ,{field: 'field_order', title: '字段排序',edit:'text'}
-                ,{field: 'tips', title: '字段提示',edit:'text'}
-                ,{field: 'attr', title: '字段提示',edit:'text'}
-                ,{field: 'mid', title: '关联模型外键'}
+                ,{title: '表单内容', templet: '#contentTpl'}
+                ,{title: '表单字段', templet: '#fieldTpl'}
+                ,{title: '表单代码', templet: '#codeTpl'}
                 ,{field: 'status', title: '状态', templet: '#statusTpl'}
+
+#table-render-foot#
                 ,{title: '操作', templet: '#buttonTpl'}
             ]]
             ,id: dataTableId
         });
-        #table-render#
+#table-render-foot#
 
-        #define-active#
-            //定义事件集合
-            var active = {
-            addRow: function(){	//添加一行
-                var oldData = table.cache[dataTableId];
-                var newRow = oldData[0];
-                var id = oldData[0]['id'];
-                newRow['id']=id+oldData.length;
-                oldData.push(newRow);
-                console.log(oldData);
-                table.reload(dataTableId,{
-                    data : oldData
-                });
-            },
-            updateRow: function(obj){
-                var oldData = table.cache[dataTableId];
-                console.log(oldData);
-                for(var i=0, row; i < oldData.length; i++){
-                    row = oldData[i];
-                    if(row.tempId == obj.tempId){
-                        $.extend(oldData[i], obj);
-                        return;
-                    }
-                }
-                tableIns.reload({
-                    data : oldData
-                });
-            },
-            removeEmptyTableCache: function(){
-                var oldData = table.cache[dataTableId];
-                for(var i=0, row; i < oldData.length; i++){
-                    row = oldData[i];
-                    if(!row || !row.tempId){
-                        oldData.splice(i, 1);    //删除一项
-                    }
-                    continue;
-                }
-                tableIns.reload({
-                    data : oldData
-                });
-            },
-            saveAll: function(){
-                var oldData = table.cache[dataTableId];
-                console.log(oldData);
-                for(var i=0, row; i < oldData.length; i++){
-                    row = oldData[i];
-                    if(!row.ftid){
-                        layer.msg("检查每一行，请选择分类！", { icon: 5 }); //提示
-                        return;
-                    }
-                }
-                document.getElementById("jsonResult").innerHTML = JSON.stringify(table.cache[dataTableId], null, 2);	//使用JSON.stringify() 格式化输出JSON字符串
-                $.post("{:url('tags')}",{data:table.cache[dataTableId],mid:{$fid}},function(data){
-                    var icon=5;
-                    if(data.code){
-                        icon=6;
-                    }
-                    layer.msg(data.msg, {icon:icon,time: 1500});
-                })
-            }
-        }
-        #define-active#
-
-        #activation-event#
-            //激活事件
-            var activeByType = function (type, arg) {
-            if(arguments.length === 2){
-                active[type] ? active[type].call(this, arg) : '';
-            }else{
-                active[type] ? active[type].call(this) : '';
-            }
-        }
-        #activation-event#
-
-        #register-event#
-            //注册按钮事件
-            $('.layui-btn[data-type]').on('click', function () {
-            var type = $(this).data('type');
-            activeByType(type);
-        });
-        //监听单元格编辑
-        table.on('edit(fieldManage)', function(obj){
-            var value = obj.value //得到修改后的值
-                ,data = obj.data //得到所在行所有键值
-                ,field = obj.field; //得到字段
-            layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
-        });
-        #register-event#
-
-        #monitor-tool#
-            //监听行工具事件
-            table.on('tool(fieldManage)', function(obj){
-            var layEvent = obj.event,
-                data = obj.data,
-                event = obj.event;//获取当前行数据
+#table-tool-header#
+            table.on('tool({@method})', function(obj){
+            var data = obj.data,//获取当前行数据
+                event = obj.event;
 
             switch(event){
+#table-tool-header#
                 case "save":
                     console.log(data);
                     $.post("{:url('mycms/mymodel/editField')}",{data:data},function(data){
@@ -236,17 +123,17 @@
                         layer.msg(data.msg, {icon:icon,time: 1500});
                     });
                     break;
+#table-tool-foot#
             }
-
         });
-        #monitor-tool#
-        #monitor-toolbar#
-//监听表格头部工具栏
+#table-tool-foot#
+#table-toolbar-header#
             table.on('toolbar(fieldManage)', function(obj){
             var layEvent = obj.event;//获取事件
             var data = table.checkStatus('dataTable').data;
             console.log(data);
             switch(layEvent){
+#table-toolbar-header#
                 case "table-add":
                     var oldData =  table.cache[dataTableId];
                     var data1=oldData[0];
@@ -264,13 +151,11 @@
                         layer.msg(data.msg, {icon:icon,time: 1500});
                     })
                     break;
+#table-toolbar-foot#
             }
-
         });
-        #monitor-toolbar#
-
-        #monitor-form#
-//监听表单
+#table-toolbar-foot#
+#script-select#
             form.on('select(select-tpl)', function(obj){
             //存入table缓存中
             var elem = obj.elem //得到select原始DOM对象
@@ -286,20 +171,9 @@
             }
             //  console.log(oldData);
         });
-        #monitor-form#
+#script-select#
 
-            function tags(){
-            var data=table.checkStatus('fieldManage').data;
-            console.log(data);
-            $.post("{:url('tags')}",{data:data,mid:{$fid}},function(data){
-                var icon=5;
-                if(data.code){
-                    icon=6;
-                }
-                layer.msg(data.msg, {icon:icon,time: 1500});
-            })
-        }
+#table-foot#
     });
-
-
 </script>
+#table-foot#

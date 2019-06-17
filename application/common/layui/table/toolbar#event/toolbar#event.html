@@ -1,0 +1,16 @@
+#htmlTpl#
+<button class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" lay-event="{@name}">&nbsp;{@title}</button>
+#htmlTpl#
+
+#scriptTpl#
+case "tags":
+                    $.post("{:url('{@url}')}",{data:data,{@scriptData}},function(data){
+                        var icon=5;
+                        if(data.code){
+                            icon=6;
+                        }
+                        layer.msg(data.msg, {icon:icon,time: 1500});
+                    })
+                    break;
+#scriptTpl#
+

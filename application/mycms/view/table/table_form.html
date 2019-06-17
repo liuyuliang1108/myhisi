@@ -20,8 +20,8 @@
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">模型外键</label>
-        <div class="layui-input-inline">
-            <input type="text" class="layui-input field-mid" name="mid" value="{:isset($data.mid)?$data.mid:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型外键">
+        <div class="layui-input-block" id="mid-class">
+            {form:select name="mid" list="$midMenu" value="$data['mid']" option="['lay-verif'=>'required']"}
         </div>
     </div>
 
@@ -32,18 +32,26 @@
         </div>
     </div>
 
+    <!--单选radio-->
     <div class="layui-form-item">
         <label class="layui-form-label">表单状态</label>
-        <div class="layui-input-inline">
-            <input type="radio" class="field-status" name="status" value="1" title="启用" checked>
-            <input type="radio" class="field-status" name="status" value="0" title="禁用">
+        <div class="layui-input-block">
+            {form:radio name="status" list="['0'=>'禁用','1'=>'启用']" value="$data['status']"}
+        </div>
+        <div class="layui-form-mid layui-word-aux">选择表单状态</div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">系统菜单id</label>
+        <div class="layui-input-block" id="parent-class">
+            {form:select name="smid" list="$menu" value="$data['smid']" option="['lay-verif'=>'required']"}
         </div>
     </div>
 </div>
 
 <div class="layui-form-item">
     <div class="layui-input-block">
-        <input type="hidden" class="field-id" name="fid" value="{:isset($data.fid)?$data.fid:''}">
+        <input type="hidden" class="field-id" name="tid" value="{:isset($data.tid)?$data.tid:''}">
         <button type="submit" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="formSubmit">提交</button>
         <a href="{:url('table/tableList')}" class="layui-btn layui-btn-primary ml10"><i class="aicon ai-fanhui"></i>返回</a>
     </div>

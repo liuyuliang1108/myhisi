@@ -16,9 +16,16 @@
     </div>
 
     <div class="layui-form-item">
+        <label class="layui-form-label">字段类型外键</label>
+        <div class="layui-input-block" id="ftid-class">
+            {form:select name="ftid" list="$ftidMenu" value="$data['ftid']" option="['lay-verif'=>'required']"}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
         <label class="layui-form-label">组件标题</label>
         <div class="layui-input-block">
-            <input type="text" name="title" placeholder="请输入" autocomplete="off" class="layui-input"
+            <input type="text" name="title" placeholder="请输入|输入框#文本" autocomplete="off" class="layui-input"
                    value="{:isset($data.title)?$data.title:''}">
         </div>
     </div>
@@ -26,7 +33,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">组件名称</label>
         <div class="layui-input-block">
-            <input type="text" name="name" placeholder="请输入" autocomplete="off" class="layui-input"
+            <input type="text" name="name" placeholder="请输入|input#text" autocomplete="off" class="layui-input"
                    value="{:isset($data.name)?$data.name:''}">
         </div>
     </div>

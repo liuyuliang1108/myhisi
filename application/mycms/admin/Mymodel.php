@@ -12,6 +12,7 @@ use app\mp\controller\App;
 use app\mycms\model\ModelField;
 use app\mycms\model\FieldType as FieldTypeModel;
 use app\mycms\model\Mymodel as HisiModel;
+use app\mycms\model\Element as ElementModel;
 use app\system\admin\Admin;
 use think\Db;
 class Mymodel extends Admin
@@ -94,15 +95,15 @@ class Mymodel extends Admin
      */
     public static function fieldOption($id, $str = '')
     {
-        $list = FieldTypeModel::all();
-        $ftid=ModelField::where('id',$id)->value('ftid');
+        $list = ElementModel::all();
+        $eid=ModelField::where('id',$id)->value('eid');
 
         foreach ($list as $v) {
 
-            if ($ftid == $v['ftid']) {
-                $str .= '<option level="1" value="'.$v['ftid'].'" selected>['.$v['name'].']'.$v['title'].'</option>';
+            if ($eid == $v['eid']) {
+                $str .= '<option level="1" value="'.$v['eid'].'" selected>['.$v['name'].']'.$v['title'].'</option>';
             } else {
-                $str .= '<option level="1" value="'.$v['ftid'].'">['.$v['name'].']'.$v['title'].'</option>';
+                $str .= '<option level="1" value="'.$v['eid'].'">['.$v['name'].']'.$v['title'].'</option>';
             }
         }
         return $str;
@@ -153,25 +154,26 @@ class Mymodel extends Admin
         if ($this->request->isPost()) { //ajax请求响应:编辑或新增
             //获取传入数据，并处理
             $data = [
-                'mid' => $this->request->param('mid', 0, 'intval'),
+                'fid' => $this->request->param('fid', 0, 'intval'),
                 'name' => $this->request->param('name', '', 'trim'),
                 'title' => $this->request->param('title', '', 'trim'),
                 'remark' => $this->request->param('remark', '', 'trim'),
+                'tags' => $this->request->param('tags', 1, 'intval'),
                 'status' => $this->request->param('status', 1, 'intval'),
-                'attr' => $this->request->param('attr', 0, 'intval'),
+                'smid' => $this->request->param('smid', 0, 'intval'),
             ];
             $object = new HisiModel;
-            if ($data['mid']) {//编辑
-                $res = $object->isUpdate()->save($data, ['mid' => $data['mid']]);
+            if ($data['fid']) {//编辑
+                $res = $object->isUpdate()->save($data, ['fid' => $data['fid']]);
             } else {//新增
                 //返回bool值
-                unset($data['mid']);
+                unset($data['fid']);
                 $res = $object->save($data);
             }
 
             if ($res) {
 
-                $this->success('保存成功', url('mycms/mymodel/modelList'));
+                $this->success('保存成功', url('mycms/myform/formList'));
 
             } else {
                 $this->error('保存失败');
@@ -240,7 +242,7 @@ $this->assign('menu', $menu);
             $res = $object->saveAll($newData);
             if ($res) {
 
-                $this->success('保存成功', url('mycms/mymodel/modelList'));
+                $this->success('保存成功', url('modelList'));
 
             } else {
                 $this->error('保存失败');

@@ -1,0 +1,12 @@
+#htmlTpl#
+<script type="text/html" id="{@name}Tpl">
+    <a lay-event="select-tpl"></a><select name='{@name}' lay-verify='' lay-filter="select-tpl">
+        {{d.{@name}Option}}
+    </select>
+</script>
+#htmlTpl#
+
+#scriptTpl#
+,{field: '{@name}',title: '{@title}', templet: '#{@name}Tpl'}
+#scriptTpl#
+

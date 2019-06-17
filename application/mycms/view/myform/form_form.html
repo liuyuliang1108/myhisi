@@ -18,10 +18,11 @@
             <textarea  class="layui-textarea field-remark" name="remark" id="form-remark"  lay-verify="" autocomplete="off" placeholder="[选填]表单备注"></textarea>
         </div>
     </div>
+
     <div class="layui-form-item">
         <label class="layui-form-label">模型外键</label>
-        <div class="layui-input-inline">
-            <input type="text" class="layui-input field-mid" name="mid" value="{:isset($data.mid)?$data.mid:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型外键">
+        <div class="layui-input-block" id="mid-class">
+            {form:select name="mid" list="$midMenu" value="$data['mid']" option="['lay-verif'=>'required']"}
         </div>
     </div>
 

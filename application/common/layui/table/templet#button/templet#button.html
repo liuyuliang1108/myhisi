@@ -1,0 +1,11 @@
+#cols#
+,{title: '{@title}', templet: '#{@name}Tpl'}
+#cols#
+
+#templet#
+<script type="text/html" title="{@title}模板" id="{@name}Tpl">
+    <a href="{:url('{@url}')}?{@primary}={{ d.{@primary} }}" class="layui-btn layui-btn-xs layui-btn-normal">{@title}</a>
+</script>
+#templet#
+
+

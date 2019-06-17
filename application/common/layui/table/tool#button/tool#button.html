@@ -1,0 +1,16 @@
+#buttonTpl#
+<a class="layui-btn layui-btn-xs" lay-event="{@name}">{@title}</a>
+#buttonTpl#
+
+#table-tool#
+case "{@name}":
+                    $.post("{:url('@url}')}",{data:data},function(data){
+                        var icon=5;
+                        if(data.code){
+                            icon=6;
+                        }
+                        layer.msg(data.msg, {icon:icon,time: 1500});
+                    });
+                    break;
+#table-tool#
+
