@@ -10,7 +10,7 @@
 </style>
 
 
-<table id="dataTable" lay-filter="fieldManage" class="layui-table"></table>
+<table id="dataTable" lay-filter="formManage" class="layui-table"></table>
 <!--保存结果输出-->
 <div class="layui-card">
     <div class="layui-card-header">保存结果输出</div>
@@ -21,7 +21,7 @@
     </div>
 </div>
 {include file="block/layui" /}
-<script type="text/html" id="toolbar">
+<script type="text/html" id="toolbarForm">
     <div class="layui-btn-group fl">
         <a data-href="{:url('statusRole?val=1')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
         <a data-href="{:url('statusRole?val=0')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
@@ -67,7 +67,7 @@
             ,text: {
                 none : '暂无相关数据'
             }
-            ,toolbar: '#toolbar'
+            ,toolbar: '#toolbarForm'
             ,defaultToolbar: ['filter']
             ,cols: [[ //表头
                 {type:'checkbox'}
@@ -138,7 +138,7 @@
                     }
                 }
                 document.getElementById("jsonResult").innerHTML = JSON.stringify(table.cache[dataTableId], null, 2);	//使用JSON.stringify() 格式化输出JSON字符串
-                $.post("{:url('tags')}",{data:table.cache[dataTableId],mid:{$mid}},function(data){
+                $.post("{:url('tags')}",{data:table.cache[dataTableId],fid:{$fid}},function(data){
                     var icon=5;
                     if(data.code){
                         icon=6;
@@ -163,14 +163,14 @@
             activeByType(type);
         });
         //监听单元格编辑
-        table.on('edit(fieldManage)', function(obj){
+        table.on('edit(formManage)', function(obj){
             var value = obj.value //得到修改后的值
                 ,data = obj.data //得到所在行所有键值
                 ,field = obj.field; //得到字段
             layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
         });
 
-        table.on('tool(fieldManage)', function(obj){
+        table.on('tool(formManage)', function(obj){
             var layEvent = obj.event,
                 data = obj.data,
                 event = obj.event;//获取当前行数据
@@ -198,7 +198,7 @@
             }
 
         });
-        table.on('toolbar(fieldManage)', function(obj){
+        table.on('toolbar(formManage)', function(obj){
             var layEvent = obj.event;//获取事件
             var data = table.checkStatus('dataTable').data;
             console.log(data);
@@ -240,9 +240,9 @@
           //  console.log(oldData);
         });
        function tags(){
-           var data=table.checkStatus('fieldManage').data;
+           var data=table.checkStatus('formManage').data;
            console.log(data);
-           $.post("{:url('tags')}",{data:data,mid:{$mid}},function(data){
+           $.post("{:url('tags')}",{data:data,fid:{$fid}},function(data){
                var icon=5;
                if(data.code){
                    icon=6;

@@ -191,6 +191,9 @@ class Table extends Admin
             /*获取参数项目标题*/
             $subjectTitle = $this->request->param('title', '', 'trim');
             $this->assign('subjectTitle', $subjectTitle);
+            /*获取参数json数据提示*/
+            $jsonTips = $this->request->param('jsonTips', '', 'trim');
+            $this->assign('jsonTips', $jsonTips);
             //获取组件类型外键
             $eidMenu= ElementModel::where('ftid', '=', 10)->column('name','eid');
             $eidMenu=array_filter($eidMenu);
@@ -247,17 +250,21 @@ class Table extends Admin
         $smid = FormModel::where('fid', $id)->value('smid');
 
         $formInfo=MymodelModel::get(['mid'=>$mid]);
-        $modelName=$formInfo['name'];
+        $modelName=ucfirst(convertUnderline($formInfo['name']));
         //查询获得表主键字段
-        $sql='SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='.$formInfo['name']. 'AND constraint_name=`PRIMARY`';
-        $mymodel=new MymodelModel;
-        $primary=$mymodel->query($sql);
+        $prefix=config('database.prefix');
+        $tablename=$prefix.$formInfo['name'];
+        $sql="SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='".$tablename. "' AND constraint_name='PRIMARY'";
+        $primary=Db::query($sql);
+        $primary=$primary[0]['column_name'];
+
 
         //查询获得表所在模块/控制器/方法等信息
         $url=MenuModel::where('id', $smid)->value('url');
         $urlArray=explode('/',$url);
         $module=$urlArray[0];
         $controller=$urlArray[1];
+        $controller=ucfirst($controller);
         $method=$urlArray[2];
         $tableTitle=MenuModel::where('id', $smid)->value('title');
 
@@ -371,7 +378,7 @@ class Table extends Admin
         preg_match($match, $tableTpl, $result);
         $scriptSelect = substr($result[0], strlen($flag));
 
-        $flag = "#tablefooter#";
+        $flag = "#table-footer#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
         preg_match($match, $tableTpl, $result);
         $tableFooter = substr($result[0], strlen($flag));
@@ -552,7 +559,7 @@ class Table extends Admin
                     case 12://下拉列表select
                         {
                             //基础文件变量字符替换
-                            $phpContent .= str_replace(['{@model}', '{@primary}'], [$mymodel, $primary], $php);
+                            $phpContent .= str_replace(['{@model}', '{@primary}'], [$modelName, $primary], $php);
                             break;
                         }
                 }
@@ -578,7 +585,9 @@ class Table extends Admin
         }
         $tplHtml=$selectSet.$tableHeader.$toolbarHeader.$templetButton.$toolbarFooter.$moduleLoad.$tableRenderHeader.$colsContent.$tableRenderFooter.$toolbarDatatypeHeader.$toolbarDatatypeContent.$toolbarDatatypeFooter.$registerEvent.$tableToolHeader.$tableToolContent.$tableToolFooter.$tabletoolbarHeader.$tableToolbarContent.$tabletoolbarFooter.$scriptSelect.$tableFooter;
 
+        $this->view->assign('tplHtml', $tplHtml);
         /*渲染对应模板*/
         return $this->fetch();
+
     }
 }

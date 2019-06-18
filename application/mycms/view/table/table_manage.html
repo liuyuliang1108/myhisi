@@ -23,15 +23,13 @@
 {include file="block/layui" /}
 <script type="text/html" id="toolbar">
     <div class="layui-btn-group fl">
-        <a data-href="{:url('statusRole?val=1')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
-        <a data-href="{:url('statusRole?val=0')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
         <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
         <button class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" lay-event="tags">&nbsp;生成tags</button>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加toolbar项目'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加toolbar项目</a>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加templet行按钮'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加templet行按钮</a>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听tool按钮'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听tool按钮</a>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏事件'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听头工具栏事件</a>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏注册事件'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听头工具栏注册事件</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加toolbar项目','jsonTips'=>'["0"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加toolbar项目</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加templet行按钮','jsonTips'=>'url |demo:["add"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加templet行按钮</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听tool按钮','jsonTips'=>'url |demo:["add"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听tool按钮</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏事件','jsonTips'=>'url,data |demo:["add","data"]]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加头工具栏事件</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏注册事件','jsonTips'=>'targetModel |demo:["Element"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加头工具栏注册事件</a>
         <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
             <i class="layui-icon layui-icon-add-1"></i> 添加一行
         </button>

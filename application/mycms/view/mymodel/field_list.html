@@ -38,6 +38,9 @@
 <script type="text/html" id="statusTpl">
     <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
 </script>
+<script type="text/html" id="requiredTpl">
+    <input type="checkbox" name="status" value="{{ d.required }}" lay-skin="switch" lay-filter="switchStatus" lay-text="是|否" {{ d.required == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
+</script>
 
 <script type="text/html" title="操作按钮模板" id="buttonTpl">
 
@@ -65,7 +68,7 @@
             ,cols: [[ //表头
                 {type:'checkbox'}
                 ,{field: 'id', title: 'id'}
-                ,{field: 'title', title: '字段注释'}
+                ,{field: 'title', title: '字段注释',edit:'text'}
                 ,{field: 'name', title: '字段名称'}
                 ,{field: 'ftid',title: '字段类型外键', templet: '#typeTpl'}
                 //,{field: 'ftid', title: '字段类型外键'}
@@ -75,6 +78,7 @@
                 ,{field: 'tips', title: '字段提示',edit:'text'}
                 ,{field: 'mid', title: '关联模型外键'}
                 ,{field: 'status', title: '状态', templet: '#statusTpl'}
+                ,{field: 'required', title: '必需字段', templet: '#requiredTpl'}
                 ,{title: '操作', templet: '#buttonTpl'}
             ]]
             ,id: dataTableId
@@ -156,14 +160,14 @@
             activeByType(type);
         });
         //监听单元格编辑
-        table.on('edit(fieldManage)', function(obj){
+        table.on('edit(fieldList)', function(obj){
             var value = obj.value //得到修改后的值
                 ,data = obj.data //得到所在行所有键值
                 ,field = obj.field; //得到字段
             layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
         });
 
-        table.on('tool(fieldManage)', function(obj){
+        table.on('tool(fieldList)', function(obj){
             var layEvent = obj.event,
                 data = obj.data,
                 event = obj.event;//获取当前行数据
@@ -181,7 +185,7 @@
                     break;
                 case "code":
                     $.post("{:url('mycms/myform/getCode')}",{mid:{$mid}},function(data){
-                        var icon=5;
+                         icon=5;
                         if(data.code){
                             icon=6;
                         }
@@ -191,9 +195,11 @@
             }
 
         });
-        table.on('toolbar(fieldManage)', function(obj){
+        table.on('toolbar(fieldList)', function(obj){
             var layEvent = obj.event;//获取事件
-            var data = table.checkStatus('dataTable').data;
+            var checkStatus = table.checkStatus('dataTable');
+            var data = checkStatus.data;
+
             console.log(data);
             switch(layEvent){
                 case "table-add":
@@ -232,17 +238,6 @@
             }
             //  console.log(oldData);
         });
-        function tags(){
-            var data=table.checkStatus('fieldManage').data;
-            console.log(data);
-            $.post("{:url('tags')}",{data:data,mid:{$mid}},function(data){
-                var icon=5;
-                if(data.code){
-                    icon=6;
-                }
-                layer.msg(data.msg, {icon:icon,time: 1500});
-            })
-        }
     });
 
 

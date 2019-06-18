@@ -175,7 +175,7 @@ class Mymodel extends Admin
 
             if ($res) {
 
-                $this->success('保存成功', url('mycms/myform/formList'));
+                $this->success('保存成功', url('modelList'));
 
             } else {
                 $this->error('保存失败');
