@@ -11,31 +11,24 @@
 
 
 <table id="dataTable" lay-filter="fieldManage" class="layui-table"></table>
-<!--保存结果输出-->
-<div class="layui-card">
-    <div class="layui-card-header">保存结果输出</div>
-    <div class="layui-card-body layui-text">
-        <blockquote class="layui-elem-quote layui-quote-nm">
-            <pre id="jsonResult"><span class="layui-word-aux">请点击“保存”后查看输出信息……</span></pre>
-        </blockquote>
-    </div>
-</div>
+
+
 {include file="block/layui" /}
 <script type="text/html" id="toolbar">
     <div class="layui-btn-group fl">
         <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
         <button class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" lay-event="tags">&nbsp;生成tags</button>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加toolbar项目','jsonTips'=>'["0"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加toolbar项目</a>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加templet行按钮','jsonTips'=>'url |demo:["add"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加templet行按钮</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加toolbar跳转项目','jsonTips'=>'url,data |demo:["add","data"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加toolbar跳转项目</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏event事件','jsonTips'=>'url,data |demo:["add","data"]]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加toolbar#lay-event事件</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏datatype事件','jsonTips'=>'url,tags |demo:["Element","getCheckData","getCheckLength","isAll","addRow","updateRow","removeEmptyTableCache","removeEmptyTableCache","saveAll","tags"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加toolbar#data-type注册事件</a>
+        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加templet行按钮','jsonTips'=>'url |demo:["add","data"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加templet行按钮</a>
         <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听tool按钮','jsonTips'=>'url |demo:["add"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加监听tool按钮</a>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏事件','jsonTips'=>'url,data |demo:["add","data"]]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加头工具栏事件</a>
-        <a href="{:url('subjectAdd',['tid'=>$tid,'title'=>'添加监听头工具栏注册事件','jsonTips'=>'targetModel |demo:["Element"]'])}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加头工具栏注册事件</a>
-        <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
+        <!-- <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
             <i class="layui-icon layui-icon-add-1"></i> 添加一行
         </button>
         <button type="button" class="layui-btn layui-btn-sm" data-type="saveAll" title="保存所有">
             <i class="layui-icon layui-icon-ok-circle"></i> 保存所有
-        </button>
+        </button>-->
     </div>
 </script>
 
@@ -236,7 +229,7 @@
             for(var i=0, row; i < oldData.length; i++){
                 row = oldData[i];
                 if(i== tableIndex){
-                    oldData[i]['ftid']=value;
+                    oldData[i]['eid']=value;
                     console.log(oldData);
                 }
             }

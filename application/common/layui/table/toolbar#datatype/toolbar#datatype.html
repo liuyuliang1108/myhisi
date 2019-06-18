@@ -1,9 +1,74 @@
 #htmlTpl#
-<button type="button" class="layui-btn layui-btn-sm" data-type="{@name}" title="{@title}"><i class="layui-icon layui-icon-ok-circle"></i> {@title}</button>
+        <button type="button" class="layui-btn layui-btn-sm" data-type="{@name}" title="{@title}"><i class="layui-icon layui-icon-ok-circle"></i> {@title}</button>
 #htmlTpl#
 
-#scriptTpl#
- saveAll: function(){
+
+#getCheckData#
+ getCheckData: function(){ //获取选中数据
+      var checkStatus = table.checkStatus('{@method}')
+      ,data = checkStatus.data;
+      layer.alert(JSON.stringify(data));
+    },
+#getCheckData#
+#getCheckLength#
+getCheckLength: function(){ //获取选中数目
+      var checkStatus = table.checkStatus('{@method}')
+      ,data = checkStatus.data;
+      layer.msg('选中了：'+ data.length + ' 个');
+    }
+#getCheckLength#
+#isAll#
+isAll: function(){ //验证是否全选
+var checkStatus = table.checkStatus('{@method}');
+layer.msg(checkStatus.isAll ? '全选': '未全选')
+}
+#isAll#
+#addRow#
+ addRow: function(){	//添加一行
+                var oldData = table.cache[dataTableId];
+                var newRow = oldData[0];
+                 var id = oldData[0]['id'];
+                newRow['id']=id+oldData.length;
+                oldData.push(newRow);
+                console.log(oldData);
+                table.reload(dataTableId,{
+                    data : oldData
+                });
+            },
+#addRow#
+#updateRow#
+            updateRow: function(obj){
+                var oldData = table.cache[dataTableId];
+                console.log(oldData);
+                for(var i=0, row; i < oldData.length; i++){
+                    row = oldData[i];
+                    if(row.tempId == obj.tempId){
+                        $.extend(oldData[i], obj);
+                        return;
+                    }
+                }
+                tableIns.reload({
+                    data : oldData
+                });
+            },
+#updateRow#
+#removeEmptyTableCache#
+            removeEmptyTableCache: function(){
+                var oldData = table.cache[dataTableId];
+                for(var i=0, row; i < oldData.length; i++){
+                    row = oldData[i];
+                    if(!row || !row.tempId){
+                        oldData.splice(i, 1);    //删除一项
+                    }
+                    continue;
+                }
+                tableIns.reload({
+                    data : oldData
+                });
+            },
+#removeEmptyTableCache#
+#saveAll#
+            saveAll: function(){
                 var oldData = table.cache[dataTableId];
                 console.log(oldData);
                 for(var i=0, row; i < oldData.length; i++){
@@ -14,14 +79,25 @@
                     }
                 }
                 document.getElementById("jsonResult").innerHTML = JSON.stringify(table.cache[dataTableId], null, 2);	//使用JSON.stringify() 格式化输出JSON字符串
-                $.post("{:url('tags')}",{data:table.cache[dataTableId],mid:{$mid}},function(data){
+                $.post("{:url('tags')}",{data:table.cache[dataTableId],fid:{$fid}},function(data){
                     var icon=5;
                     if(data.code){
                         icon=6;
                     }
                     layer.msg(data.msg, {icon:icon,time: 1500});
                 })
-            }
-#scriptTpl#
+            },
+#saveAll#
+#tags#
+ case "tags":
+                    $.post("{:url('mycms/mymodel/tags')}",{data:data,fid:{$fid}},function(data){
+                        var icon=5;
+                        if(data.code){
+                            icon=6;
+                        }
+                        layer.msg(data.msg, {icon:icon,time: 1500});
+                    })
+                    break;
+#tags#
 
 

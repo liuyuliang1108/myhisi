@@ -8,12 +8,13 @@
 
 
 namespace app\mycms\admin;
+
 use app\system\model\SystemMenu as MenuModel;
 use app\mp\controller\App;
 use app\mycms\model\Form;
 use app\mycms\model\ModelField;
 use app\mycms\admin\Mymodel;
-use app\mycms\model\Mymodel as MymodelModel ;
+use app\mycms\model\Mymodel as MymodelModel;
 use app\mycms\model\Form as FormModel;
 use app\mycms\model\Element as ElementModel;
 use app\system\admin\Admin;
@@ -95,13 +96,13 @@ class Myform extends Admin
             }
 
             //获取系统菜单外键
-            $menu= MenuModel::column('url','id');
-            $menu=array_filter($menu);
+            $menu = MenuModel::column('url', 'id');
+            $menu = array_filter($menu);
             $this->assign('menu', $menu);
 
             //获取模型外键
-            $midMenu= MymodelModel::column('name','mid');
-            $midMenu=array_filter($midMenu);
+            $midMenu = MymodelModel::column('name', 'mid');
+            $midMenu = array_filter($midMenu);
             $this->assign('midMenu', $midMenu);
 
             /*渲染对应模板*/
@@ -155,19 +156,23 @@ class Myform extends Admin
         $tags = FormModel::where('fid', $id)->value('tags');
         $smid = FormModel::where('fid', $id)->value('smid');
 
-        $formInfo=MymodelModel::get($mid);
+        $formInfo = MymodelModel::get($mid);
+
+        $modelName=ucfirst(convertUnderline($formInfo['name']));
         //查询获得表主键字段
-        $sql='SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='.$formInfo['name']. 'AND constraint_name=`PRIMARY`';
-        $mymodel=new MymodelModel;
-        $primary=$mymodel->query($sql);
+        $prefix=config('database.prefix');
+        $tablename=$prefix.$formInfo['name'];
+        $sql="SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='".$tablename. "' AND constraint_name='PRIMARY'";
+        $primary=Db::query($sql);
+        $primary=$primary[0]['column_name'];
 
         //查询获得表所在模块/控制器/方法等信息
-        $url=MenuModel::where('id', $smid)->value('url');
-        $urlArray=explode('/',$url);
-        $module=$urlArray[0];
-        $controller=$urlArray[1];
-        $method=$urlArray[2];
-        $tableTitle=MenuModel::where('id', $smid)->value('title');
+        $url = MenuModel::where('id', $smid)->value('url');
+        $urlArray = explode('/', $url);
+        $module = $urlArray[0];
+        $controller = $urlArray[1];
+        $method = $urlArray[2];
+        $tableTitle = MenuModel::where('id', $smid)->value('title');
 
         //获取本table字段数据集对象
         $object = new ModelField;
@@ -181,13 +186,15 @@ class Myform extends Admin
         array_multisort(array_column($res, 'field_order'), SORT_ASC, $res);
         $formPath = APP_PATH . 'common/layui/form';
         $formTplPath = $formPath . '/form.html';
+        $formPhpPath = $formPath . '/form.php';
         $formTpl = file_get_contents($formTplPath);
+        $formPhp = file_get_contents($formPhpPath);
         $flag = "#form-header#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
         preg_match($match, $formTpl, $result);
         $formHeader = substr($result[0], strlen($flag));
         //基础文件变量字符替换
-        $formHeader= str_replace(['{@controller}'], [$controller],$formHeader);
+        $formHeader = str_replace(['{@controller}'], [$controller], $formHeader);
 
 
         $flag = "#form-submit#";
@@ -205,10 +212,39 @@ class Myform extends Admin
         preg_match($match, $formTpl, $result);
         $formFoot = substr($result[0], strlen($flag));
 
-$path=APP_PATH . 'common/layui';
-        $tplContent='';
-        $phpContent='';
-        $script='';
+        $flag = "#funtionHeader#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $formTpl, $result);
+        $funtionHeader = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $funtionHeader= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $funtionHeader);
+
+        $flag = "#dataSave#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $formTpl, $result);
+        $dataSave = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $dataSave= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $dataSave);
+
+        $flag = "#dataDeal#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $formTpl, $result);
+        $dataDeal = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $dataDeal= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $dataDeal);
+
+        $flag = "#funtionFooter#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $formTpl, $result);
+        $funtionFooter = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $funtionFooter= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $funtionFooter);
+
+        $path = APP_PATH . 'common/layui';
+        $tplContent = '';
+        $phpRequest = '';
+        $phpContent = '';
+        $script = '';
         foreach ($res as $key => $value) {
             $name = $value['name'];
             $title = $value['title'];
@@ -278,27 +314,27 @@ $path=APP_PATH . 'common/layui';
                             $tplContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}', '{@list}'], [$name, $title, $tips, $required, $list], $tpl);
                             break;
                         }
-                   /* case 9://下拉列表select
-                        {
-                            $tplname = $element->where(['eid' => $eid])->value('name');
-                            $tplPath = $path . $element->where(['eid' => $eid])->value('dir') . '/' . $tplname . '.html';
-                            $tpl = file_get_contents($tplPath);
-                            $flag = "#form-item#";
-                            $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
-                            preg_match($match, $tpl, $result);
-                            $formItem = substr($result[0], strlen($flag));
-                            //基础文件变量字符替换
-                            $tplContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}', '{@primary}'], [$name, $title, $tips, $required, $primary], $formItem);
+                    /* case 9://下拉列表select
+                         {
+                             $tplname = $element->where(['eid' => $eid])->value('name');
+                             $tplPath = $path . $element->where(['eid' => $eid])->value('dir') . '/' . $tplname . '.html';
+                             $tpl = file_get_contents($tplPath);
+                             $flag = "#form-item#";
+                             $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+                             preg_match($match, $tpl, $result);
+                             $formItem = substr($result[0], strlen($flag));
+                             //基础文件变量字符替换
+                             $tplContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}', '{@primary}'], [$name, $title, $tips, $required, $primary], $formItem);
 
-                            $flag = "#script#";
-                            $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
-                            preg_match($match, $tpl, $result);
-                            $formItem = substr($result[0], strlen($flag));
-                            //基础文件变量字符替换
-                            $script .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required], $formItem);
+                             $flag = "#script#";
+                             $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+                             preg_match($match, $tpl, $result);
+                             $formItem = substr($result[0], strlen($flag));
+                             //基础文件变量字符替换
+                             $script .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required], $formItem);
 
-                            break;
-                        }*/
+                             break;
+                         }*/
                 }
 
             }
@@ -318,8 +354,11 @@ $path=APP_PATH . 'common/layui';
                         }
                 }
             }
+            if () {
+            }
+            $phpRequest .="'".$name."'" ."=> $this->request->post('".$name."',".$phpType ;
         }
-        $tplHtml=$formHeader.$tplContent.$formSubmit.$moduleLoad.$script.$formFoot;
+        $tplHtml = $formHeader . $tplContent . $formSubmit . $moduleLoad . $script . $formFoot;
 
 
         /*渲染对应模板*/
@@ -345,4 +384,24 @@ $path=APP_PATH . 'common/layui';
         return json_encode($data);
 
     }*/
+    public function editField()
+    {
+        if ($this->request->isPost()) { //ajax请求响应:编辑或新增
+            //获取传入数据，并处理
+            $data = $this->request->param('data');
+            $object = new ModelField();
+            if ($data['id']) {//编辑
+                $res = $object->isUpdate()->save($data, ['id' => $data['id']]);
+            }
+            if ($res) {
+
+                $this->success('保存成功', url('formList'));
+
+            } else {
+                $this->error('保存失败');
+            }
+        } else {
+            $this->error('非法请求');
+        }
+    }
 }

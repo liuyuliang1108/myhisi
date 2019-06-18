@@ -1,0 +1,10 @@
+#htmlTpl#
+<script type="text/html" title="排序模板" id="{@name}Tpl">
+    <input type="text" class="layui-input hisi-ajax-input input-{@name}"  value="{{ d.{@name} }}" data-value="{{ d.{@primary}id }}" data-href="{:url('{@name}')}?id={{ d.{@primary} }}">
+</script>
+#htmlTpl#
+
+#scriptTpl#
+                ,{field: '{@name}', title: '{@title}', templet: '#{@name}Tpl'}
+#scriptTpl#
+

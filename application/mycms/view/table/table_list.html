@@ -1,66 +1,80 @@
-<table id="dataTable" lay-filter="tableList"></table>
+<table id="dataTable" lay-filter="tablelist" class="layui-table"></table>
 
 {include file="block/layui" /}
 
 <script type="text/html" id="toolbar">
     <div class="layui-btn-group fl">
-        <a href="{:url('edittable')}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加表格</a>
-        <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
+        <a href="{:url('editTable')}" class="layui-btn layui-btn-primary layui-btn-sm layui-icon layui-icon-add-circle-fine">&nbsp;添加表格管理</a>
+
     </div>
 </script>
 
-<script type="text/html" title="内容操作模板" id="contentTpl">
-    <a href="{:url('fieldList')}?tid={{ d.mid }}" class="layui-btn layui-btn-xs layui-btn-normal">内容管理</a>
+<script type="text/html" id="statusTpl">
+    <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="开启|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusTable')}?tid={{ d.tid }}">
 </script>
 
-<script type="text/html" title="字段操作模板" id="fieldTpl">
+<script type="text/html" title="字段管理模板" id="fieldTpl">
     <a href="{:url('tableManage')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">字段管理</a>
 </script>
 
-<script type="text/html" title="代码操作模板" id="codeTpl">
+<script type="text/html" title="获取代码模板" id="codeTpl">
     <a href="{:url('getCode')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">获取代码</a>
 </script>
 
-<script type="text/html" id="statusTpl">
-    <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
-</script>
-
 <script type="text/html" title="操作模板" id="buttonTpl">
-    <a href="{:url('edittable')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">编辑</a>
-    <a href="{:url('deletetable')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">删除</a>
-</script>
+    <a href="{:url('editTable')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">编辑</a>
+    <a href="{:url('deleteTable')}?tid={{ d.tid }}" class="layui-btn layui-btn-xs layui-btn-normal">删除</a>
 
+</script>
 <script type="text/javascript">
-    layui.use(['form','layer','table'], function() {
-        var table = layui.table;
+    layui.use(['form','layer','table','jquery'], function() {
+        var table = layui.table,
+            form=layui.form,
+            layer=layui.layer,
+            $=layui.jquery,
+            dataTable='dataTable';
 
         table.render({
-            elem: '#dataTable'
-            ,url: '{:url("mycms/table/tablelist")}' //数据接口
-            ,skin: 'row'
+            elem: '#dataTable' //指定原始 table 容器的选择器或 DOM
+            ,url: '{:url("Tablelist")}' //数据接口
+            ,skin: 'row' //设定表格各种外观、尺寸等
             ,even: true
             ,text: {
                 none : '暂无相关数据'
-            }
-            ,toolbar: '#toolbar'
-            ,defaultToolbar: ['filter']
-            ,cols: [[ //表头
-                {type:'checkbox'}
-                ,{field: 'tid', title: 'tid'}
+            }//自定义文本，如空数据时的异常提示等
+            ,toolbar: '#toolbar'  //开启表格头部工具栏区域 参数支持四种类型值：toolbar: '#toolbarDemo' //指向自定义工具栏模板选择器 toolbar: '<div>xxx</div>' //直接传入工具栏模板字符
+            //toolbar: true //仅开启工具栏，不显示左侧模板 toolbar: 'default' //让工具栏左侧显示默认的内置模板
+            ,defaultToolbar: ['filter']   //自由配置头部工具栏右侧的图标 filter: 显示筛选图标  exports: 显示导出图标  print: 显示打印图标
+            ,cols: [[ //表头         表头参数 field:设定字段名。字段名的设定非常重要，且是表格数据列的唯一标识 title:设定标题名称 fixed 固定列。可选值有：left（固定在左）、right（固定在右） edit:单元格编辑类型 目前只支持：text（输入框）
+                {type:'checkbox'}//设定列类型。可选值有： normal（常规列，无需设定） checkbox（复选框列） radio（单选框列，layui 2.4.0 新增） numbers（序号列） space（空列）
+                ,{field: 'tid', title: '表格主键'}
                 ,{field: 'title', title: '表单标题'}
                 ,{field: 'name', title: '表单名称'}
                 ,{field: 'remark', title: '备注说明'}
-                ,{field: 'mid', title: '模型外键'}
                 ,{field: 'tags', title: '标签'}
-                ,{title: '表单内容', templet: '#contentTpl'}
-                ,{title: '表单字段', templet: '#fieldTpl'}
-                ,{title: '表单代码', templet: '#codeTpl'}
+
                 ,{field: 'status', title: '状态', templet: '#statusTpl'}
+                ,{field: 'mid', title: '模型外键'}
+                ,{field: 'smid', title: '系统菜单外键'}
+
+                ,{title: '字段管理', templet: '#fieldTpl'}
+
+                ,{title: '获取代码', templet: '#codeTpl'}
+
                 ,{title: '操作', templet: '#buttonTpl'}
             ]]
+            ,id: dataTable
+        });
+
+        table.on('toolbar(fieldManage)', function(obj){
+            var layEvent = obj.event;//获取事件
+            var data = table.checkStatus('dataTable').data;
+            console.log(data);
+            switch(layEvent){
+
+            }
         });
 
     });
-
-
 </script>
+

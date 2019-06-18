@@ -23,16 +23,17 @@
 {include file="block/layui" /}
 <script type="text/html" id="toolbarForm">
     <div class="layui-btn-group fl">
+        <button class="layui-btn" data-type="getCheckData">获取选中行数据</button>
         <a data-href="{:url('statusRole?val=1')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" data-table="dataTable">&nbsp;启用</a>
         <a data-href="{:url('statusRole?val=0')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-pause" data-table="dataTable">&nbsp;禁用</a>
         <a data-href="{:url('delRole')}" class="layui-btn layui-btn-primary layui-btn-sm j-page-btns confirm layui-icon layui-icon-close red">&nbsp;删除</a>
         <button class="layui-btn layui-btn-primary layui-btn-sm j-page-btns layui-icon layui-icon-play" lay-event="tags">&nbsp;生成tags</button>
-        <button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
+        <!--<button type="button" class="layui-btn layui-btn-sm" data-type="addRow" title="添加一行">
             <i class="layui-icon layui-icon-add-1"></i> 添加一行
         </button>
         <button type="button" class="layui-btn layui-btn-sm" data-type="saveAll" title="保存所有">
             <i class="layui-icon layui-icon-ok-circle"></i> 保存所有
-        </button>
+        </button>-->
     </div>
 </script>
 
@@ -49,15 +50,16 @@
 
 <script type="text/html" title="操作按钮模板" id="buttonTpl">
     <a class="layui-btn layui-btn-xs" lay-event="save">保存</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 <script type="text/javascript">
-    layui.use(['form','layer','table','laytpl'], function() {
+    layui.use(['form','layer','table','laytpl','jquery'], function() {
         var table = layui.table,
         form=layui.form,
         layer=layui.layer,
         $=layui.jquery,
             laytpl = layui.laytpl,
-            dataTableId = "dataTableId";
+            dataTableId = "dataTable";
 
       table.render({
             elem: '#dataTable'
@@ -145,22 +147,25 @@
                     }
                     layer.msg(data.msg, {icon:icon,time: 1500});
                 })
+            },
+            getCheckData: function(){ //获取选中数据
+                var checkStatus = table.checkStatus('dataTable')
+                    ,data = checkStatus.data;
+                layer.alert(JSON.stringify(data));
             }
-        }
+        };
 
-        //激活事件
-        var activeByType = function (type, arg) {
-            if(arguments.length === 2){  //arguments.length会知道你输入的了几个参数。并可以通过索引器获得这几个参数的值
-                active[type] ? active[type].call(this, arg) : '';
-            }else{
-                active[type] ? active[type].call(this) : '';
-            }
-        }
+
+        //监听表格复选框选择
+        table.on('checkbox(formManage)', function(obj){
+            console.log(obj)
+            //layer.alert(JSON.stringify(obj));
+        });
 
         //注册按钮事件
         $('.layui-btn[data-type]').on('click', function () {
             var type = $(this).data('type');
-            activeByType(type);
+            active[type] ? active[type].call(this) : '';
         });
         //监听单元格编辑
         table.on('edit(formManage)', function(obj){
@@ -195,12 +200,25 @@
                         layer.msg(data.msg, {icon:icon,time: 1500});
                     });
                     break;
+                case "del":
+                    layer.confirm('真的删除行么', function(index){
+                        layer.close(index);
+                        $.post("{:url('deleteForm')}",{fid:data.fid},function(data){
+                            var icon=5;
+                            if(data.code){
+                                icon=6;
+                                obj.del();
+                            }
+                            layer.msg(data.msg, {icon:icon,time: 1500});
+                        });
+                    });
+                    break;
             }
-
         });
         table.on('toolbar(formManage)', function(obj){
             var layEvent = obj.event;//获取事件
-            var data = table.checkStatus('dataTable').data;
+            var checkStatus = table.checkStatus('dataTable');
+            var data = checkStatus.data;
             console.log(data);
             switch(layEvent){
                 case "table-add":
@@ -233,7 +251,7 @@
             for(var i=0, row; i < oldData.length; i++){
                 row = oldData[i];
                 if(i== tableIndex){
-                    oldData[i]['ftid']=value;
+                    oldData[i]['eid']=value;
                     console.log(oldData);
                 }
             }

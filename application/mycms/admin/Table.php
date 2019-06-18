@@ -165,7 +165,7 @@ class Table extends Admin
                 'tags' => $this->request->param('tags', 0, 'intval'),
                 'json_data' => $this->request->param('json_data', '0', 'trim'),
             ];
-            $data['json_data']=[0=>$data['json_data']];
+            $data['json_data']=explode('|',$data['json_data']);
             $tid=$this->request->param('tid', 0, 'intval');
             $object = new ModelField() ;
 
@@ -240,14 +240,33 @@ class Table extends Admin
         /*渲染对应模板*/
         return $this->fetch();
     }
+    public function editField()
+    {
+        if ($this->request->isPost()) { //ajax请求响应:编辑或新增
+            //获取传入数据，并处理
+            $data = $this->request->param('data');
+            $object = new ModelField();
+            if ($data['id']) {//编辑
+                $res = $object->isUpdate()->save($data, ['id' => $data['id']]);
+            }
+            if ($res) {
 
+                $this->success('保存成功', url('tableList'));
+
+            } else {
+                $this->error('保存失败');
+            }
+        } else {
+            $this->error('非法请求');
+        }
+    }
     public function getCode()
     {
         //获取传入数据，并处理
         $id = $this->request->param('tid');
         $mid=TableModel::where('tid',$id)->value('mid');
         $tags=TableModel::where('tid',$id)->value('tags');
-        $smid = FormModel::where('fid', $id)->value('smid');
+        $smid = TableModel::where('tid', $id)->value('smid');
 
         $formInfo=MymodelModel::get(['mid'=>$mid]);
         $modelName=ucfirst(convertUnderline($formInfo['name']));
@@ -366,7 +385,7 @@ class Table extends Admin
         preg_match($match, $tableTpl, $result);
         $tabletoolbarHeader = substr($result[0], strlen($flag));
         //基础文件变量字符替换
-        $tabletoolbarHeader= str_replace(['{@controller}'], [$controller],$tabletoolbarHeader);
+        $tabletoolbarHeader= str_replace(['{@controller}','{@method}'], [$controller,$method],$tabletoolbarHeader);
 
         $flag = "#table-toolbar-footer#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
@@ -398,6 +417,7 @@ class Table extends Admin
         $tableSelectFlag=0;
         $toolbarDatatypeFlag=0;
         $phpContent='';
+
         foreach ($res as $key => $value) {
             $name = $value['name'];
             $title = $value['title'];
@@ -420,11 +440,18 @@ class Table extends Admin
                             $colsContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required], $tpl);
                             break;
                         }
-                    case 15://toolbar#add
-                    case 16://toolbar#del
+                    case 15://toolbar#jump
                         {
+                            $tableToolbarFlag++;
+                            $url = $jsonData[0];
+                            if (isset($jsonData[1])) {
+                                $jumpData =",". $jsonData[1];
+                            }else{
+                                $jumpData ="";
+                            }
+
                             //基础文件变量字符替换
-                            $toolbarContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@controller}','{@tableTitle}'], [$name, $title, $tips, $required,$controller,$tableTitle], $tpl);
+                            $toolbarContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@controller}','{@tableTitle}','{@url}','{@jumpData}'], [$name, $title, $tips, $required,$controller,$tableTitle,$url,$jumpData], $tpl);
                             break;
                         }
                     case 17://templet#switch
@@ -433,7 +460,7 @@ class Table extends Admin
                             $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
                             preg_match($match, $tpl, $result);
                             $cols = substr($result[0], strlen($flag));
-                            $array = $jsonData[1] . '|' . $jsonData[0];
+                            $array = $jsonData[0] . '|' . $jsonData[1];
                             //基础文件变量字符替换
                             $colsContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@controller}','{@tableTitle}','{@array}'], [$name, $title, $tips, $required,$controller,$tableTitle,$array], $cols);
 
@@ -461,7 +488,7 @@ class Table extends Admin
                             preg_match($match, $tpl, $result);
                             $templet = substr($result[0], strlen($flag));
                             //基础文件变量字符替换
-                            $templetContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@controller}','{@tableTitle}','{@url}'], [$name, $title, $tips, $required,$controller,$tableTitle,$url], $templet);
+                            $templetContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@controller}','{@tableTitle}','{@url}','{@primary}'], [$name, $title, $tips, $required,$controller,$tableTitle,$url,$primary], $templet);
 
                             break;
                         }
@@ -499,9 +526,14 @@ class Table extends Admin
                             preg_match($match, $tpl, $result);
                             $scriptTpl = substr($result[0], strlen($flag));
                             $url = $jsonData[0];
+                            if (isset($jsonData[1])) {
+                                $eventData=','.$jsonData[1];
+                            }else{
+                                $eventData='';
+                            }
                             $scriptData = $jsonData[1];
                             //基础文件变量字符替换
-                            $colsContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@controller}','{@tableTitle}','{@url}','{@scriptData}'], [$name, $title, $tips, $required,$controller,$tableTitle,$url,$scriptData],$scriptTpl);
+                            $tableToolbarContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@controller}','{@tableTitle}','{@url}','{@eventData}'], [$name, $title, $tips, $required,$controller,$tableTitle,$url,$eventData],$scriptTpl);
                             break;
                         }
                     case 21://table#select
@@ -536,13 +568,33 @@ class Table extends Admin
                             $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
                             preg_match($match, $tpl, $result);
                             $scriptTpl = substr($result[0], strlen($flag));
-                            $targetModel = $jsonData[0];
-                            //查询获得表主键字段
-                            $sql='SELECT column_name FROM INFORMATION_SCHEMA.`KEY_COLUMN_USAGE` WHERE table_name='.$formInfo['name']. 'AND constraint_name=`PRIMARY`';
-                            $target=new $targetModel.'Model';
-                            $targetPrimary=$target->query($sql);
+                            $url = $jsonData[0];
+                           $toolbarTags=$jsonData[1];
+                            $flag = "#".$toolbarTags."#";
+                            $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+                            preg_match($match, $tpl, $result);
+                            $scriptTpl = substr($result[0], strlen($flag));
                             //基础文件变量字符替换
-                            $toolbarDatatypeContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}', '{@model}', '{@primary}', '{@targetModel}', '{@targetPrimary}'], [$name, $title, $tips, $required,$modelName,$primary,$targetModel,$targetPrimary],$scriptTpl);
+                            $toolbarDatatypeContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}', '{@model}', '{@primary}', '{@url}'], [$name, $title, $tips, $required,$modelName,$primary,$url],$scriptTpl);
+
+                            break;
+                        }
+                    case 23://table#edit
+                        {
+                            $tableSelectFlag++;
+                            $flag = "#htmlTpl#";
+                            $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+                            preg_match($match, $tpl, $result);
+                            $htmlTpl = substr($result[0], strlen($flag));
+                            //基础文件变量字符替换
+                            $templetContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}','{@primary}'], [$name, $title, $tips, $required,$primary], $htmlTpl);
+
+                            $flag = "#scriptTpl#";
+                            $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+                            preg_match($match, $tpl, $result);
+                            $scriptTpl = substr($result[0], strlen($flag));
+                            //基础文件变量字符替换
+                            $colsContent .= str_replace(['{@name}', '{@title}', '{@tips}', '{@required}'], [$name, $title, $tips, $required],$scriptTpl);
                             break;
                         }
                 }
@@ -564,6 +616,7 @@ class Table extends Admin
                         }
                 }
             }
+
         }
 
         if (!$tableToolFlag) {
@@ -583,7 +636,7 @@ class Table extends Admin
             $toolbarDatatypeFooter='';
             $registerEvent='';
         }
-        $tplHtml=$selectSet.$tableHeader.$toolbarHeader.$templetButton.$toolbarFooter.$moduleLoad.$tableRenderHeader.$colsContent.$tableRenderFooter.$toolbarDatatypeHeader.$toolbarDatatypeContent.$toolbarDatatypeFooter.$registerEvent.$tableToolHeader.$tableToolContent.$tableToolFooter.$tabletoolbarHeader.$tableToolbarContent.$tabletoolbarFooter.$scriptSelect.$tableFooter;
+        $tplHtml=$selectSet.$tableHeader.$toolbarHeader.$toolbarContent.$toolbarFooter.$templetContent.$templetButton.$moduleLoad.$tableRenderHeader.$colsContent.$tableRenderFooter.$toolbarDatatypeHeader.$toolbarDatatypeContent.$toolbarDatatypeFooter.$registerEvent.$tableToolHeader.$tableToolContent.$tableToolFooter.$tabletoolbarHeader.$tableToolbarContent.$tabletoolbarFooter.$scriptSelect.$tableFooter;
 
         $this->view->assign('tplHtml', $tplHtml);
         /*渲染对应模板*/

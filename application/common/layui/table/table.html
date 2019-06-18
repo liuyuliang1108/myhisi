@@ -52,15 +52,14 @@
 #templet-button#
 
 #module-load#
-
 </script>
 <script type="text/javascript">
-    layui.use(['form','layer','table'], function() {
+    layui.use(['form','layer','table','jquery'], function() {
         var table = layui.table,
             form=layui.form,
             layer=layui.layer,
             $=layui.jquery,
-            dataTableId = "dataTableId";;
+            dataTable='dataTable';
 #module-load#
 
 #table-render-header#
@@ -93,7 +92,10 @@
 #table-render-footer#
                 ,{title: '操作', templet: '#buttonTpl'}
             ]]
-            ,id: dataTableId
+            ,id: dataTable
+            ,page: true  //开启分页
+            ,height: 'full-70' //表格高度最大化适配
+            ,limit: 20 //每页默认显示的数量
         });
 #table-render-footer#
 #toolbar-datatype-header#
@@ -101,13 +103,13 @@
             var active = {
 #toolbar-datatype-header#
             addRow: function(){	//添加一行
-                var oldData = table.cache[dataTableId];
+                var oldData = table.cache[dataTable];
                 var newRow = oldData[0];
                 var id = oldData[0]['id'];
                 newRow['id']=id+oldData.length;
                 oldData.push(newRow);
                 console.log(oldData);
-                table.reload(dataTableId,{
+                table.reload(dataTable,{
                     data : oldData
                 });
             },
@@ -116,21 +118,30 @@
 #toolbar-datatype-footer#
 
 #register-event#
-            //激活事件
-            var activeByType = function (type, arg) {
-            if(arguments.length === 2){  //arguments.length会知道你输入的了几个参数。并可以通过索引器获得这几个参数的值
-                active[type] ? active[type].call(this, arg) : '';
-            }else{
-                active[type] ? active[type].call(this) : '';
-            }
-        }
-
         //注册按钮事件
         $('.layui-btn[data-type]').on('click', function () {
             var type = $(this).data('type');
-            activeByType(type);
+            active[type] ? active[type].call(this) : '';
         });
 #register-event#
+
+            active = {
+    getCheckData: function(){ //获取选中数据
+      var checkStatus = table.checkStatus('idTest')
+      ,data = checkStatus.data;
+      layer.alert(JSON.stringify(data));
+    }
+    ,getCheckLength: function(){ //获取选中数目
+      var checkStatus = table.checkStatus('idTest')
+      ,data = checkStatus.data;
+      layer.msg('选中了：'+ data.length + ' 个');
+    }
+    ,isAll: function(){ //验证是否全选
+      var checkStatus = table.checkStatus('idTest');
+      layer.msg(checkStatus.isAll ? '全选': '未全选')
+    }
+  };
+
 #table-tool-header#
             table.on('tool({@method})', function(obj){
             var data = obj.data,//获取当前行数据
@@ -162,17 +173,17 @@
         });
 #table-tool-footer#
 #table-toolbar-header#
-            table.on('toolbar(fieldManage)', function(obj){
+            table.on('toolbar({@method})', function(obj){
             var layEvent = obj.event;//获取事件
             var data = table.checkStatus('dataTable').data;
             console.log(data);
             switch(layEvent){
 #table-toolbar-header#
                 case "table-add":
-                    var oldData =  table.cache[dataTableId];
+                    var oldData =  table.cache[dataTable];
                     var data1=oldData[0];
                     oldData.push(data1);
-                    table.reload(dataTableId,{
+                    table.reload(dataTable,{
                         data : oldData
                     });
                     break;
@@ -194,7 +205,7 @@
             //存入table缓存中
             var elem = obj.elem //得到select原始DOM对象
                 ,value = obj.value,
-                oldData = table.cache[dataTableId];
+                oldData = table.cache[dataTable];
             var tableIndex=$(elem).closest('tr').attr('data-index');//得到行索引
             for(var i=0, row; i < oldData.length; i++){
                 row = oldData[i];

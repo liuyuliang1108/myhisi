@@ -32,7 +32,7 @@ class Mymodel extends Admin
             /*筛选配置信息*/
             $data = [
                 'key' => $this->request->get('key', '', 'trim'),
-                'limit' => $this->request->get('limit', 10, 'intval'),
+                'limit' => $this->request->get('limit', 20, 'intval'),
             ];
             /*按name匹配相关数据*/
             $list = HisiModel::withSearch(['name'], ['name' => $data['key']])
@@ -64,20 +64,25 @@ class Mymodel extends Admin
             /*筛选配置信息*/
             $data = [
                 'key' => $this->request->get('key', '', 'trim'),
-                'limit' => $this->request->get('limit', 10, 'intval'),
+                'limit' => $this->request->get('limit', 20, 'intval'),
+                'page' => $this->request->get('page', 1, 'intval'),
             ];
 
             /*按name匹配相关数据*/
-            $object = new ModelField;
-            $list = $object->all(['mid' => $id, 'tags' => 0]);
+
+            $list = Db::name('model_field')->order('tags,field_order')->where(['mid' => $id])->paginate($data['limit'],false,['page'=>$data['page']])->toArray();
+
+            $count=Db::name('model_field')->order('tags,field_order')->where(['mid' => $id])->count();
             /*输出数据处理*/
             $res = [];
-            foreach ($list as $key => $val) {
+            foreach ($list['data'] as $key => $val) {
                 $res[$key] = $val;
                 $res[$key]['fieldOption']=self::fieldOption($val['id']);
+                $res[$key]['json_data']=json_decode($res[$key]['json_data']);
+                $res[$key]['json_data']=implode(",",$res[$key]['json_data']);
             }
 
-            return show($res, 0, '', ['count' => $list->count()]);
+            return show($res, 0, '', ['count' => $count]);
         }
 
         $this->assign('mid', $id);
@@ -97,7 +102,7 @@ class Mymodel extends Admin
      */
     public static function fieldOption($id, $str = '')
     {
-        $list = ElementModel::all();
+        $list = ElementModel::where('ftid','IN','1,2,3,4,5,8,9,11')->all();
         $eid=ModelField::where('id',$id)->value('eid');
 
         foreach ($list as $v) {
@@ -130,10 +135,11 @@ class Mymodel extends Admin
                 $result = get_db_column_comment($prefix . lcfirst($model), $value, $database, 1);
                 $list['title'] = is_array($result) ? end($result) : $result;
                 $list['json_data'] = is_array($result) ? array_pop($result) : 0;
-                $list['json_data'] = is_array($result) ? $result : 0;
+                $list['json_data'] = is_array($result) ? $result : [0];
                 $list['attr'] = 0;//初始字段参数
                 $list['field_order'] = $key;//初始字段排序信息
                 $list['status'] = 1;//初始字段状态
+                $list['ftid'] = 14;//初始组件类型
                 $list['mid'] = $id;//关联模型外键
                 //将数据存入数据库
                 $object = new ModelField();
@@ -156,7 +162,7 @@ class Mymodel extends Admin
         if ($this->request->isPost()) { //ajax请求响应:编辑或新增
             //获取传入数据，并处理
             $data = [
-                'fid' => $this->request->param('fid', 0, 'intval'),
+                'mid' => $this->request->param('mid', 0, 'intval'),
                 'name' => $this->request->param('name', '', 'trim'),
                 'title' => $this->request->param('title', '', 'trim'),
                 'remark' => $this->request->param('remark', '', 'trim'),
@@ -165,11 +171,11 @@ class Mymodel extends Admin
                 'smid' => $this->request->param('smid', 0, 'intval'),
             ];
             $object = new HisiModel;
-            if ($data['fid']) {//编辑
-                $res = $object->isUpdate()->save($data, ['fid' => $data['fid']]);
+            if ($data['mid']) {//编辑
+                $res = $object->isUpdate()->save($data, ['mid' => $data['mid']]);
             } else {//新增
                 //返回bool值
-                unset($data['fid']);
+                unset($data['mid']);
                 $res = $object->save($data);
             }
 
@@ -210,6 +216,7 @@ $this->assign('menu', $menu);
         if ($this->request->isPost()) { //ajax请求响应:编辑或新增
             //获取传入数据，并处理
             $data = $this->request->param('data');
+            $data['json_data']=explode(',',$data['json_data']);
             $object = new ModelField();
             if ($data['id']) {//编辑
                 $res = $object->isUpdate()->save($data, ['id' => $data['id']]);
@@ -240,16 +247,15 @@ $this->assign('menu', $menu);
                 $tags=$object->where('mid',$mid)->max('tags')+1;
             }
             if ($fid) {
-                $mid=MymodelModel::where('fid',$fid)->value('mid');
                 $tags=$object->where('mid',$mid)->max('tags')+1;
             }
             if ($tid) {
-                $mid=TableModel::where('tid',$tid)->value('mid');
                 $tags=$object->where('mid',$mid)->max('tags')+1;
             }
 
 
             foreach ($data as $value){
+                $value['json_data']=explode(',',$value['json_data']);
                 $value['tags']=$tags;
                 unset($value['id']);
                 unset($value['fieldOption']);

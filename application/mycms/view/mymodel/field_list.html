@@ -35,11 +35,15 @@
         </select>
 </script>
 
+<script type="text/html" title="排序模板" id="sortTpl">
+    <input type="text" class="layui-input hisi-ajax-input input-sort" onkeyup="value=value.replace(/[^\d]/g,'')" value="{{ d.field_order }}" data-value="{{ d.id }}" data-href="{:url('field_order')}?id={{ d.id }}">
+</script>
+
 <script type="text/html" id="statusTpl">
     <input type="checkbox" name="status" value="{{ d.status }}" lay-skin="switch" lay-filter="switchStatus" lay-text="正常|关闭" {{ d.status == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
 </script>
 <script type="text/html" id="requiredTpl">
-    <input type="checkbox" name="status" value="{{ d.required }}" lay-skin="switch" lay-filter="switchStatus" lay-text="是|否" {{ d.required == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
+    <input type="checkbox" name="required" value="{{ d.required }}" lay-skin="switch" lay-filter="switchRequired" lay-text="是|否" {{ d.required == 1 ? 'checked' : '' }} data-href="{:url('statusRole')}?id={{ d.id }}">
 </script>
 
 <script type="text/html" title="操作按钮模板" id="buttonTpl">
@@ -53,7 +57,7 @@
         layer=layui.layer,
         $=layui.jquery,
             laytpl = layui.laytpl,
-            dataTableId = "dataTableId";
+            dataTableId = "dataTable";
 
         table.render({
             elem: '#dataTable'
@@ -67,14 +71,14 @@
             ,defaultToolbar: ['filter']
             ,cols: [[ //表头
                 {type:'checkbox'}
-                ,{field: 'id', title: 'id'}
+                ,{field: 'id', title: 'id', totalRowText: '合计'}
                 ,{field: 'title', title: '字段注释',edit:'text'}
                 ,{field: 'name', title: '字段名称'}
                 ,{field: 'ftid',title: '字段类型外键', templet: '#typeTpl'}
                 //,{field: 'ftid', title: '字段类型外键'}
                 ,{field: 'json_data', title: 'json数据'}
                 ,{field: 'tags', title: '标签'}
-                ,{field: 'field_order', title: '字段排序',edit:'text'}
+                ,{field: 'field_order', title: '字段排序', templet: '#sortTpl'}
                 ,{field: 'tips', title: '字段提示',edit:'text'}
                 ,{field: 'mid', title: '关联模型外键'}
                 ,{field: 'status', title: '状态', templet: '#statusTpl'}
@@ -82,6 +86,10 @@
                 ,{title: '操作', templet: '#buttonTpl'}
             ]]
             ,id: dataTableId
+            ,page: true
+            ,totalRow: true
+            ,height: 'full-70'
+            ,limit: 20 //每页默认显示的数量
         });
      //   updateCacheOrForm("dataTable", "dataTableId", "form");
         //定义事件集合
@@ -232,7 +240,7 @@
             for(var i=0, row; i < oldData.length; i++){
                 row = oldData[i];
                 if(i== tableIndex){
-                    oldData[i]['ftid']=value;
+                    oldData[i]['eid']=value;
                     console.log(oldData);
                 }
             }

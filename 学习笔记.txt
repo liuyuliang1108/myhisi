@@ -1,0 +1,8 @@
+1.// 获取`think_user`表所有信息
+2.Db::getTableInfo('think_user');
+3.// 获取`think_user`表所有字段
+4.Db::getTableInfo('think_user', 'fields');
+5.// 获取`think_user`表所有字段的类型
+6.Db::getTableInfo('think_user', 'type');
+7.// 获取`think_user`表的主键
+8.Db::getTableInfo('think_user', 'pk');

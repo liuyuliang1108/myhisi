@@ -1,9 +1,9 @@
 #cols#
-,{field: '{@name}', title: '{@title}', templet: '#{@name}Tpl'}
+                ,{field: '{@name}', title: '{@title}', templet: '#{@name}Tpl'}
 #cols#
 
 #templet#
 <script type="text/html" id="{@name}Tpl">
-    <input type="checkbox" name="{@name}" value="{{ d.{@name} }}" lay-skin="switch" lay-filter="switch{@name}" lay-text="正常|关闭" {{ d.{@name} == 1 ? '{@name}' : '' }} data-href="{:url('{@name}{@controller}')}?{@primary}={{ d.{@primary} }}">
+    <input type="checkbox" name="{@name}" value="{{ d.{@name} }}" lay-skin="switch" lay-filter="switch{@name}" lay-text="{@array}" {{ d.{@name} == 1 ? 'checked' : '' }} data-href="{:url('{@name}{@controller}')}?{@primary}={{ d.{@primary} }}">
 </script>
 #templet#

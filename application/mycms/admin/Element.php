@@ -117,8 +117,12 @@ class Element extends Admin
                 $content[] = '{$field}字段名'."\n". '{$comment}注释'."\n". '{$model}模型名'."\n";
             }
             foreach ($filename as$key=> $value){
-                //写入文件
-                file_put_contents($value, $content[$key].PHP_EOL, FILE_APPEND);
+
+                //判断写入文件是否存在
+                if(!is_file($value)){
+                    //写入文件
+                    file_put_contents($value, $content[$key].PHP_EOL, FILE_APPEND);
+                }
             }
         }
         $this->success('生成成功');
