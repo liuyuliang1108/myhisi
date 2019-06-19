@@ -156,7 +156,7 @@ class Myform extends Admin
         $tags = FormModel::where('fid', $id)->value('tags');
         $smid = FormModel::where('fid', $id)->value('smid');
 
-        $formInfo = MymodelModel::get($mid);
+        $formInfo = MymodelModel::get(['mid'=>$mid]);
 
         $modelName=ucfirst(convertUnderline($formInfo['name']));
         //查询获得表主键字段
@@ -166,6 +166,7 @@ class Myform extends Admin
         $primary=Db::query($sql);
         $primary=$primary[0]['column_name'];
 
+        $fieldsType = db($formInfo['name'])->getFieldsType();
         //查询获得表所在模块/控制器/方法等信息
         $url = MenuModel::where('id', $smid)->value('url');
         $urlArray = explode('/', $url);
@@ -214,28 +215,28 @@ class Myform extends Admin
 
         $flag = "#funtionHeader#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
-        preg_match($match, $formTpl, $result);
+        preg_match($match, $formPhp, $result);
         $funtionHeader = substr($result[0], strlen($flag));
         //基础文件变量字符替换
         $funtionHeader= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $funtionHeader);
 
         $flag = "#dataSave#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
-        preg_match($match, $formTpl, $result);
+        preg_match($match, $formPhp, $result);
         $dataSave = substr($result[0], strlen($flag));
         //基础文件变量字符替换
         $dataSave= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $dataSave);
 
         $flag = "#dataDeal#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
-        preg_match($match, $formTpl, $result);
+        preg_match($match, $formPhp, $result);
         $dataDeal = substr($result[0], strlen($flag));
         //基础文件变量字符替换
         $dataDeal= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $dataDeal);
 
         $flag = "#funtionFooter#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
-        preg_match($match, $formTpl, $result);
+        preg_match($match, $formPhp, $result);
         $funtionFooter = substr($result[0], strlen($flag));
         //基础文件变量字符替换
         $funtionFooter= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $funtionFooter);
@@ -339,6 +340,8 @@ class Myform extends Admin
 
             }
 
+
+
             $phpFlag = $element->where(['eid' => $eid])->value('php');
             if ($phpFlag) {
                 switch ($eid) {
@@ -354,12 +357,15 @@ class Myform extends Admin
                         }
                 }
             }
-            if () {
-            }
-            $phpRequest .="'".$name."'" ."=> $this->request->post('".$name."',".$phpType ;
+           if (strstr($fieldsType['name'],'int')) {
+               $phpType="0, 'intval'),";
+            }else{
+               $phpType="'', 'trim'),";
+           }
+            $phpRequest .="'".$name."'" .'=> $this->request->param('."'".$name."',".$phpType ;
         }
         $tplHtml = $formHeader . $tplContent . $formSubmit . $moduleLoad . $script . $formFoot;
-
+        $tplPhp=$phpRequest;
 
         /*渲染对应模板*/
         return $this->fetch();

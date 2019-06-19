@@ -1,3 +1,4 @@
+tp5.0
 1.// 获取`think_user`表所有信息
 2.Db::getTableInfo('think_user');
 3.// 获取`think_user`表所有字段
@@ -6,3 +7,21 @@
 6.Db::getTableInfo('think_user', 'type');
 7.// 获取`think_user`表的主键
 8.Db::getTableInfo('think_user', 'pk');
+tp5.1
+$fieldsType = db(tablename)->getFieldsType();
+
+; XDEBUG Extension
+[xdebug]
+zend_extension ="c:/wamp/bin/php/php7.0.10/zend_ext/php_xdebug-2.4.1-7.0-vc14.dll"
+
+xdebug.remote_enable = on
+xdebug.profiler_enable = off
+xdebug.profiler_enable_trigger = Off
+xdebug.profiler_output_name = cachegrind.out.%t.%p
+xdebug.profiler_output_dir ="c:/wamp/tmp"
+xdebug.show_local_vars=0
+xdebug.idekey="PHPSTORM"
+xdebug.remote_port=9001
+xdebug.remote_host = "localhost"
+#开启自动开始调试
+xdebug.remote_autostart=1
