@@ -79,7 +79,7 @@ class Mymodel extends Admin
                 $res[$key] = $val;
                 $res[$key]['fieldOption']=self::fieldOption($val['id']);
                 $res[$key]['json_data']=json_decode($res[$key]['json_data']);
-                $res[$key]['json_data']=implode(",",$res[$key]['json_data']);
+                $res[$key]['json_data']=implode("|",$res[$key]['json_data']);
             }
 
             return show($res, 0, '', ['count' => $count]);
@@ -216,7 +216,7 @@ $this->assign('menu', $menu);
         if ($this->request->isPost()) { //ajax请求响应:编辑或新增
             //获取传入数据，并处理
             $data = $this->request->param('data');
-            $data['json_data']=explode(',',$data['json_data']);
+            $data['json_data']=explode('|',$data['json_data']);
             $object = new ModelField();
             if ($data['id']) {//编辑
                 $res = $object->isUpdate()->save($data, ['id' => $data['id']]);

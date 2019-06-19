@@ -26,6 +26,13 @@
     </div>
 
     <div class="layui-form-item">
+        <label class="layui-form-label">源模型外键</label>
+        <div class="layui-input-block" id="soid-class">
+            {form:select name="soid" list="$midMenu" value="$data['mid']" option="['lay-verif'=>'required']"}
+        </div>
+    </div>
+
+    <div class="layui-form-item">
         <label class="layui-form-label">模型标签</label>
         <div class="layui-input-inline">
             <input type="text" class="layui-input field-tags" name="tags" value="{:isset($data.tags)?$data.tags:''}" lay-verify="required" autocomplete="off" placeholder="请输入模型标签">

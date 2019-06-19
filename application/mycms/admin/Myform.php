@@ -137,6 +137,7 @@ class Myform extends Admin
             foreach ($list as $key => $val) {
                 $res[$key] = $val;
                 $res[$key]['fieldOption'] = Mymodel::fieldOption($val['id']);
+                $res[$key]['json_data']=implode("|",$res[$key]['json_data']);
             }
 
             return show($res, 0, '', ['count' => $list->count()]);
@@ -195,13 +196,15 @@ class Myform extends Admin
         preg_match($match, $formTpl, $result);
         $formHeader = substr($result[0], strlen($flag));
         //基础文件变量字符替换
-        $formHeader = str_replace(['{@controller}'], [$controller], $formHeader);
+        $formHeader = str_replace(['{@controller}','{@method}'], [$controller,$method], $formHeader);
 
 
         $flag = "#form-submit#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
         preg_match($match, $formTpl, $result);
         $formSubmit = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $formSubmit = str_replace(['{@controller}','{@method}'], [$controller,$method], $formSubmit);
 
         $flag = "#module-load#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
@@ -357,15 +360,20 @@ class Myform extends Admin
                         }
                 }
             }
-           if (strstr($fieldsType['name'],'int')) {
-               $phpType="0, 'intval'),";
-            }else{
-               $phpType="'', 'trim'),";
-           }
-            $phpRequest .="'".$name."'" .'=> $this->request->param('."'".$name."',".$phpType ;
+            if (array_key_exists($name, $fieldsType)) {
+                if (strstr($fieldsType[$name],'int')) {
+                    $phpType="0, 'intval'),";
+                }else{
+                    $phpType="'', 'trim'),";
+                }
+                $phpRequest .="               '".$name."'" .'=> $this->request->param('."'".$name."',".$phpType ."\n";
+            }
+
         }
         $tplHtml = $formHeader . $tplContent . $formSubmit . $moduleLoad . $script . $formFoot;
-        $tplPhp=$phpRequest;
+        $tplPhp=$funtionHeader.$phpRequest.$dataSave.$dataDeal.$funtionFooter;
+        $this->view->assign('tplHtml', $tplHtml);
+        $this->view->assign('tplPhp', $tplPhp);
 
         /*渲染对应模板*/
         return $this->fetch();
@@ -395,6 +403,7 @@ class Myform extends Admin
         if ($this->request->isPost()) { //ajax请求响应:编辑或新增
             //获取传入数据，并处理
             $data = $this->request->param('data');
+            $data['json_data']=explode('|',$data['json_data']);
             $object = new ModelField();
             if ($data['id']) {//编辑
                 $res = $object->isUpdate()->save($data, ['id' => $data['id']]);

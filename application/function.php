@@ -37,20 +37,7 @@ function show($data, $code = 1, $msg = '', $param = [], $httpCode = 200)
 }
 
 
-function field_option($id=54,$str = '')
-{
-    $list = FieldType::all();
-    $tid=ModelField::where('id',$id)->value('tid');
-    foreach ($list as $v) {
 
-        if ($tid == $v['id']) {
-            $str .= '<option level="1" value="'.$v['id'].'" selected>['.$v['name'].']'.$v['title'].'</option>';
-        } else {
-            $str .= '<option level="1" value="'.$v['id'].'">['.$v['name'].']'.$v['title'].'</option>';
-        }
-    }
-    return $str;
-}
 
 /**
  * 数据签名认证

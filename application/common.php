@@ -12,6 +12,7 @@
 // 应用公共函数库
 use think\exception\HttpException;
 use think\facade\Env;
+use think\exception\HttpResponseException;
 
 // 加载自定义函数库
 include Env::get('app_path').'function.php';

@@ -104,53 +104,7 @@ class Table extends Admin
         }
     }
 
-    public function toolbarAdd()
-    {
 
-        if ($this->request->isPost()) { //ajax请求响应:编辑或新增
-            //获取传入数据，并处理
-            $data = [
-                'eid' => $this->request->param('eid', 0, 'intval'),
-                'name' => $this->request->param('name', '', 'trim'),
-                'title' => $this->request->param('title', '', 'trim'),
-                'status' => $this->request->param('status', 1, 'intval'),
-                'mid' => $this->request->param('mid', 0, 'intval'),
-                'tags' => $this->request->param('tags', 0, 'intval'),
-                'json_data' => $this->request->param('json_data', '0', 'trim'),
-            ];
-            $data['json_data']=[0=>$data['json_data']];
-            $tid=$this->request->param('tid', 0, 'intval');
-            $object = new ModelField() ;
-
-            $res = $object->save($data);
-
-            if ($res) {
-
-                $this->success('保存成功', url('mycms/table/tableManage',['tid'=>$tid]));
-
-            } else {
-                $this->error('保存失败');
-            }
-        } else { //模板渲染输出
-            /*获取参数id*/
-            $tid = $this->request->param('tid', 0, 'intval');
-
-            /*根据tid获取数据并进行数据处理*/
-            if ($tid) {
-                $data = TableModel::where('tid', '=', $tid)->find();
-
-                $this->assign('data', $data);
-            }
-
-
-            //获取组件类型外键
-            $eidMenu= ElementModel::where('ftid', '=', 10)->column('name','eid');
-            $eidMenu=array_filter($eidMenu);
-            $this->assign('eidMenu', $eidMenu);
-            /*渲染对应模板*/
-            return $this->fetch('');
-        }
-    }
     public function subjectAdd()
     {
 
@@ -230,6 +184,7 @@ class Table extends Admin
             foreach ($list as $key => $val) {
                 $res[$key] = $val;
                 $res[$key]['fieldOption']=Mymodel::fieldOption($val['id']);
+                $res[$key]['json_data']=implode("|",$res[$key]['json_data']);
             }
 
             return show($res, 0, '', ['count' => $list->count()]);
@@ -245,6 +200,7 @@ class Table extends Admin
         if ($this->request->isPost()) { //ajax请求响应:编辑或新增
             //获取传入数据，并处理
             $data = $this->request->param('data');
+            $data['json_data']=explode('|',$data['json_data']);
             $object = new ModelField();
             if ($data['id']) {//编辑
                 $res = $object->isUpdate()->save($data, ['id' => $data['id']]);
@@ -264,7 +220,8 @@ class Table extends Admin
     {
         //获取传入数据，并处理
         $id = $this->request->param('tid');
-        $mid=TableModel::where('tid',$id)->value('mid');
+        $mid=TableModel::where('tid',$id)->value('mid');//所关联模型外键
+        $soid=TableModel::where('tid',$id)->value('soid');//源模型外键
         $tags=TableModel::where('tid',$id)->value('tags');
         $smid = TableModel::where('tid', $id)->value('smid');
 
@@ -277,7 +234,8 @@ class Table extends Admin
         $primary=Db::query($sql);
         $primary=$primary[0]['column_name'];
 
-
+$soTableName=MymodelModel::get(['mid'=>$soid])->value('name');
+        $soPrimary = db($soTableName)->getPk();
         //查询获得表所在模块/控制器/方法等信息
         $url=MenuModel::where('id', $smid)->value('url');
         $urlArray=explode('/',$url);
@@ -300,7 +258,9 @@ class Table extends Admin
 
         $tablePath = APP_PATH . 'common/layui/table';
         $tableTplPath = $tablePath . '/table.html';
+        $tablePhpPath = $tablePath . '/table.php';
         $tableTpl = file_get_contents($tableTplPath);
+        $tablePhp = file_get_contents($tablePhpPath);
 
         $flag = "#select-set#";
         $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
@@ -402,6 +362,36 @@ class Table extends Admin
         preg_match($match, $tableTpl, $result);
         $tableFooter = substr($result[0], strlen($flag));
 
+        $flag = "#funtionHeader#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tablePhp, $result);
+        $funtionHeader = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $funtionHeader= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@soPrimary}','{@tableTitle}'], [$controller, $method, $modelName, $soPrimary,$tableTitle], $funtionHeader);
+
+        $flag = "#laypage#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tablePhp, $result);
+        $laypage = substr($result[0], strlen($flag));
+
+         $flag = "#selectData#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tablePhp, $result);
+        $selectData = substr($result[0], strlen($flag));
+
+        $flag = "#dataDeal#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tablePhp, $result);
+        $dataDeal = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $dataDeal= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@primary}'], [$controller, $method, $modelName, $primary], $dataDeal);
+
+        $flag = "#funtionFooter#";
+        $match = '/' . $flag . '[\W\w]*(?=' . $flag . ')/';
+        preg_match($match, $tablePhp, $result);
+        $funtionFooter = substr($result[0], strlen($flag));
+        //基础文件变量字符替换
+        $funtionFooter= str_replace([ '{@controller}', '{@method}', '{@modelName}', '{@soPrimary}'], [$controller, $method, $modelName, $soPrimary], $funtionFooter);
 
         $path=APP_PATH . 'common/layui';
         $colsContent='';
@@ -637,8 +627,9 @@ class Table extends Admin
             $registerEvent='';
         }
         $tplHtml=$selectSet.$tableHeader.$toolbarHeader.$toolbarContent.$toolbarFooter.$templetContent.$templetButton.$moduleLoad.$tableRenderHeader.$colsContent.$tableRenderFooter.$toolbarDatatypeHeader.$toolbarDatatypeContent.$toolbarDatatypeFooter.$registerEvent.$tableToolHeader.$tableToolContent.$tableToolFooter.$tabletoolbarHeader.$tableToolbarContent.$tabletoolbarFooter.$scriptSelect.$tableFooter;
-
+        $tplPhp=$funtionHeader.$laypage.$selectData.$dataDeal.$funtionFooter;
         $this->view->assign('tplHtml', $tplHtml);
+        $this->view->assign('tplPhp', $tplPhp);
         /*渲染对应模板*/
         return $this->fetch();
 
